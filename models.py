@@ -1,73 +1,126 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Dict
+from dataclasses import dataclass, field
 
 class UserRole(Enum):
     ADMIN = "administrateur"
     PROJECT_MANAGER = "gestionnaire_projet"
     EMPLOYEE = "employe"
 
+class ProjectStatus(Enum):
+    DRAFT = "brouillon"
+    ACTIVE = "actif"
+    PAUSED = "en_pause"
+    COMPLETED = "termine"
+    CANCELLED = "annule"
+
 class TaskStatus(Enum):
     ACTIVE = "active"
     WAITING = "en_attente"
+    IN_PROGRESS = "en_cours"
     COMPLETED = "terminee"
+    BLOCKED = "bloquee"
+    CANCELLED = "annulee"
 
+class Priority(Enum):
+    LOW = "basse"
+    NORMAL = "normale"
+    HIGH = "haute"
+    CRITICAL = "critique"
+
+class TimesheetStatus(Enum):
+    DRAFT = "brouillon"
+    SUBMITTED = "soumis"
+    APPROVED = "approuve"
+    REJECTED = "rejete"
+
+@dataclass
 class User:
-    def __init__(self, id: int, nom: str, email: str, role: UserRole, mot_de_passe_hash: str):
-        self.id = id
-        self.nom = nom
-        self.email = email
-        self.role = role
-        self.mot_de_passe_hash = mot_de_passe_hash
-        self.date_creation = datetime.now()
+    id: int
+    nom: str
+    prenom: str
+    email: str
+    mot_de_passe_hash: str
+    role: UserRole
+    actif: bool = True
+    date_creation: datetime = field(default_factory=datetime.now)
+    date_derniere_connexion: Optional[datetime] = None
+    telephone: Optional[str] = None
+    departement: Optional[str] = None
 
+@dataclass
 class Project:
-    def __init__(self, id: int, nom: str, description: str, createur_id: int, 
-                 est_template: bool = False):
-        self.id = id
-        self.nom = nom
-        self.description = description
-        self.createur_id = createur_id
-        self.est_template = est_template
-        self.date_creation = datetime.now()
-        self.date_debut = None
-        self.date_fin_prevue = None
+    id: int
+    nom: str
+    code_projet: str
+    description: str
+    createur_id: int
+    est_template: bool = False
+    statut: ProjectStatus = ProjectStatus.ACTIVE
+    priorite: Priority = Priority.NORMAL
+    date_creation: datetime = field(default_factory=datetime.now)
+    date_debut_prevue: Optional[datetime] = None
+    date_fin_prevue: Optional[datetime] = None
+    date_debut_reelle: Optional[datetime] = None
+    date_fin_reelle: Optional[datetime] = None
+    budget_estime: float = 0.0
+    cout_reel: float = 0.0
+    client_nom: Optional[str] = None
+    archive: bool = False
 
+@dataclass
 class Task:
-    def __init__(self, id: int, nom: str, description: str, projet_id: int,
-                 tache_parent_id: Optional[int] = None):
-        self.id = id
-        self.nom = nom
-        self.description = description
-        self.projet_id = projet_id
-        self.tache_parent_id = tache_parent_id
-        self.statut = TaskStatus.ACTIVE
-        self.heures_estimees = 0.0
-        self.heures_reelles = 0.0
-        self.date_creation = datetime.now()
-        self.date_debut = None
-        self.date_fin_prevue = None
-        self.assignes: List[int] = []  # Liste des user_id
+    id: int
+    code_tache: str
+    nom: str
+    description: str
+    projet_id: int
+    tache_parent_id: Optional[int] = None
+    niveau_profondeur: int = 0
+    ordre_affichage: int = 0
+    statut: TaskStatus = TaskStatus.ACTIVE
+    priorite: Priority = Priority.NORMAL
+    heures_estimees: float = 0.0
+    heures_reelles: float = 0.0
+    pourcentage_completion: int = 0
+    date_creation: datetime = field(default_factory=datetime.now)
+    date_debut_prevue: Optional[datetime] = None
+    date_fin_prevue: Optional[datetime] = None
+    date_debut_reelle: Optional[datetime] = None
+    date_fin_reelle: Optional[datetime] = None
+    createur_id: int = 0
+    dependances: List[int] = field(default_factory=list)
+    tags: List[str] = field(default_factory=list)
 
+@dataclass
 class TimeEntry:
-    def __init__(self, id: int, employe_id: int, tache_id: int, 
-                 date: datetime, heures: float, description: str = ""):
-        self.id = id
-        self.employe_id = employe_id
-        self.tache_id = tache_id
-        self.date = date
-        self.heures = heures
-        self.description = description
-        self.approuve = False
-        self.approuve_par_id = None
-        self.date_approbation = None
+    id: int
+    employe_id: int
+    tache_id: int
+    date_travail: datetime
+    heures: float
+    description: str = ""
+    type_temps: str = "normal"
+    approuve: bool = False
+    approuve_par_id: Optional[int] = None
+    date_approbation: Optional[datetime] = None
+    date_creation: datetime = field(default_factory=datetime.now)
+    date_modification: Optional[datetime] = None
+    modifie: bool = False
+    verrouille: bool = False
 
+@dataclass
 class TimeSheet:
-    def __init__(self, id: int, employe_id: int, semaine_debut: datetime):
-        self.id = id
-        self.employe_id = employe_id
-        self.semaine_debut = semaine_debut
-        self.entrees: List[TimeEntry] = []
-        self.approuve = False
-        self.approuve_par_id = None
-        self.date_approbation = None
+    id: int
+    employe_id: int
+    annee: int
+    numero_semaine: int
+    semaine_debut: datetime
+    semaine_fin: datetime
+    total_heures: float = 0.0
+    statut: TimesheetStatus = TimesheetStatus.DRAFT
+    soumis_le: Optional[datetime] = None
+    approuve_par_id: Optional[int] = None
+    date_approbation: Optional[datetime] = None
+    commentaire_gestionnaire: Optional[str] = None
