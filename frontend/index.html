@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>ProjectTime - Gestion de projets et de temps</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Icônes FontAwesome (CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    :root {
+      --bg: #f5f6fb;
+      --primary: #1e90ff;
+      --primary-dark: #0f1520;
+      --purple: #8b5cf6;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #6b7280;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f6fb;
+      color: var(--text);
+    }
+
+    /* =========================
+       1. ECRAN DE CONNEXION
+    ============================ */
+    .auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #eff3ff 0%, #f5f6fb 45%, #f5f6fb 100%);
+      padding: 30px 10px;
+    }
+
+    .auth-box {
+      background: white;
+      width: min(720px, 100%);
+      border-radius: 20px;
+      padding: 26px 28px 30px;
+      box-shadow: 0 14px 44px rgba(15, 23, 42, 0.08);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .auth-icons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .icon-pill {
+      width: 56px;
+      height: 56px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 22px;
+    }
+
+    .icon-blue {
+      background: #1e90ff;
+    }
+    .icon-purple {
+      background: #8b5cf6;
+    }
+
+    .auth-title {
+      font-weight: 600;
+      font-size: 1.3rem;
+    }
+    .auth-subtitle {
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    /* Onglets Connexion / Inscription */
+    .auth-tabs {
+      display: flex;
+      background: #f3f4f6;
+      border-radius: 999px;
+      padding: 6px;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      border: none;
+      background: transparent;
+      border-radius: 999px;
+      padding: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .auth-tab.active {
+      background: white;
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+    }
+
+    .auth-form {
+      display: none;
+      gap: 12px;
+    }
+
+    .auth-form.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+    .form-input, .form-select {
+      background: #f2f3f6;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 12px;
+      outline: none;
+      font-size: 0.93rem;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: rgba(30,144,255,0.5);
+      background: #fff;
+    }
+
+    .btn-primary {
+      background: #0f172a;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .btn-primary:hover {
+      background: #111827;
+    }
+
+    /* =========================
+       2. APP PRINCIPALE
+    ============================ */
+    .app {
+      display: none;
+      min-height: 100vh;
+      background: #f5f6fb;
+    }
+
+    .topbar {
+      background: white;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 16px;
+      background: #1e90ff;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .top-nav {
+      display: flex;
+      gap: 10px;
+    }
+    .top-nav button {
+      border: none;
+      background: transparent;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 500;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #373a42;
+    }
+    .top-nav button.active {
+      background: #0f1520;
+      color: white;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      display: grid;
+      place-items: center;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .user-info small {
+      background: #e2e8f0;
+      border-radius: 999px;
+      padding: 1px 8px;
+      font-size: 0.7rem;
+    }
+
+    .content {
+      padding: 28px 30px 50px;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .page-subtitle {
+      color: #6b7280;
+      margin-bottom: 22px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px 16px 16px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.03);
+    }
+
+    .stat-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+    }
+    .stat-body {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-title {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+
+    .btn-dark {
+      background: #0f1520;
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    /* Pages */
+    .app-page {
+      display: none;
+    }
+    .app-page.active {
+      display: block;
+    }
+
+    /* Gantt fake */
+    .gantt-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.02), 0 10px 25px rgba(15,23,42,0.04);
+      overflow: auto;
+    }
+    .gantt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .gantt-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .gantt-table th,
+    .gantt-table td {
+      text-align: left;
+      padding: 12px 6px;
+      border-bottom: 1px solid #edf2f7;
+    }
+    .gantt-bar {
+      height: 16px;
+      border-radius: 999px;
+    }
+
+    /* Modales */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 40;
+    }
+    .modal {
+      background: white;
+      border-radius: 16px;
+      width: min(520px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px 22px 24px;
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .btn-light {
+      background: #e2e8f0;
+      border: none;
+      border-radius: 12px;
+      padding: 9px 14px;
+      cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (max-width: 820px) {
+      .topbar {
+        flex-wrap: wrap;
+        gap: 14px;
+        height: auto;
+        padding: 14px;
+      }
+      .content {
+        padding: 20px 14px 40px;
+      }
+      .auth-box {
+        border-radius: 18px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- =====================
+       ECRAN D'AUTH
+  ====================== -->
+  <div class="auth-wrapper" id="authScreen">
+    <div class="auth-box">
+      <div class="auth-header">
+        <div class="auth-icons">
+          <div class="icon-pill icon-blue"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="icon-pill icon-purple"><i class="fa-regular fa-clock"></i></div>
+        </div>
+        <div class="auth-title">Gestionnaire de Projets et Temps</div>
+        <div class="auth-subtitle">Gestion de projets et suivi du temps</div>
+      </div>
+
+      <!-- onglets -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuth('login')">Connexion</button>
+        <button class="auth-tab" onclick="switchAuth('register')">Inscription</button>
+      </div>
+
+      <!-- formulaire connexion -->
+      <div class="auth-form active" id="loginForm">
+        <label>
+          <div class="form-label">Email</div>
+          <input type="email" class="form-input" placeholder="nom@entreprise.com" />
+        </label>
+        <label>
+          <div class="form-label">Mot de passe</div>
+          <input type="password" class="form-input" placeholder="••••••••" />
+        </label>
+        <button class="btn-primary" onclick="enterApp()">Se connecter</button>
+      </div>
+
+      <!-- formulaire inscription -->
+      <div class="auth-form" id="registerForm">
+        <label>
+          <div class="form-label">Nom complet</div>
+          <input type="text" class="form-input" placeholder="Jean Dupont" />
+        </label>
+        <label>
+          <div class="form-label">Email</div>
+          <input type="email" class="form-input" placeholder="jean@entreprise.com" />
+        </label>
+        <label>
+          <div class="form-label">Mot de passe</div>
+          <input type="password" class="form-input" placeholder="••••••••" />
+        </label>
+        <label>
+          <div class="form-label">Rôle</div>
+          <select class="form-select">
+            <option>Employé</option>
+            <option>Gestionnaire</option>
+            <option>Admin</option>
+          </select>
+        </label>
+        <button class="btn-primary" onclick="enterApp()"><i class="fa-regular fa-user"></i> Créer un compte</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================
+       APP PRINCIPALE
+  ====================== -->
+  <div class="app" id="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-folder-tree"></i></div>
+        <div>ProjectTime</div>
+      </div>
+      <div class="top-nav">
+        <button class="active" onclick="showPage('projects', this)"><i class="fa-solid fa-folder-open"></i> Projets</button>
+        <button onclick="showPage('gantt', this)"><i class="fa-solid fa-bars-staggered"></i> Gantt</button>
+        <button onclick="showPage('time', this)"><i class="fa-regular fa-clock"></i> Temps</button>
+      </div>
+      <div class="user-pill">
+        <div class="avatar">D</div>
+        <div class="user-info">
+          <div>drtgdtr</div>
+          <small>Employé</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- PAGE PROJETS -->
+      <div class="app-page active" id="page-projects">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <div>
+            <div class="page-title">Gestion de Projets</div>
+            <div class="page-subtitle">Gérez vos projets et tâches efficacement</div>
+          </div>
+          <button class="btn-dark" onclick="openModal('projectModal')"><i class="fa-solid fa-plus"></i> Nouveau Projet</button>
+        </div>
+
+        <div class="cards-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#e7f0ff;color:#1e90ff;"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="stat-body">
+              <div class="stat-title">Projets Actifs</div>
+              <div class="stat-value">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-body">
+              <div class="stat-title">Tâches Terminées</div>
+              <div class="stat-value">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#ffedd5;color:#ea580c;"><i class="fa-regular fa-clock"></i></div>
+            <div class="stat-body">
+              <div class="stat-title">En Cours</div>
+              <div class="stat-value">2</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#b91c1c;"><i class="fa-solid fa-circle-exclamation"></i></div>
+            <div class="stat-body">
+              <div class="stat-title">En Retard</div>
+              <div class="stat-value">4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE GANTT -->
+      <div class="app-page" id="page-gantt">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <div>
+            <div class="page-title">Diagramme de Gantt</div>
+            <div class="page-subtitle">Visualisation chronologique des projets et tâches</div>
+          </div>
+          <div>
+            <select class="form-select" style="background:white;min-width:150px;">
+              <option>Tous les projets</option>
+              <option>Refonte Site Web</option>
+              <option>Application Mobile</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="gantt-box">
+          <div class="gantt-header">
+            <strong>sept. 2025</strong>
+            <strong>oct. 2025</strong>
+            <strong>nov. 2025</strong>
+          </div>
+
+          <table class="gantt-table">
+            <tr>
+              <th>Nom</th>
+              <th style="width:65%;">Planning</th>
+            </tr>
+            <tr>
+              <td><i class="fa-solid fa-circle text-blue" style="color:#1e90ff;margin-right:4px;"></i> Refonte Site Web</td>
+              <td>
+                <div class="gantt-bar" style="background:linear-gradient(90deg,#bfdbfe,#1e40af);width:80%;"></div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-left:22px;">Phase de Design</td>
+              <td>
+                <div class="gantt-bar" style="background:#86efac;width:50%;"></div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-left:22px;">Conception maquettes</td>
+              <td>
+                <div class="gantt-bar" style="background:#86efac;width:35%;"></div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-left:22px;">Développement Frontend</td>
+              <td>
+                <div class="gantt-bar" style="background:linear-gradient(90deg,#bfdbfe,#1d4ed8);width:40%;"></div>
+              </td>
+            </tr>
+          </table>
+
+          <div style="margin-top:20px;display:flex;gap:24px;">
+            <div>Statuts :</div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <div><span style="background:#e2e8f0;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span> Actif</div>
+              <div><span style="background:#fef3c7;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span> En attente</div>
+              <div><span style="background:#bfdbfe;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span> En cours</div>
+              <div><span style="background:#fed7aa;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span> En révision</div>
+              <div><span style="background:#bbf7d0;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span> Terminé</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE TEMPS -->
+      <div class="app-page" id="page-time">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <div>
+            <div class="page-title">Suivi du Temps</div>
+            <div class="page-subtitle">Enregistrez et analysez votre temps de travail</div>
+          </div>
+          <button class="btn-dark" onclick="openModal('timeModal')"><i class="fa-solid fa-plus"></i> Nouvelle Entrée</button>
+        </div>
+
+        <div class="cards-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#e7f0ff;color:#1e90ff;"><i class="fa-regular fa-clock"></i></div>
+            <div class="stat-body">
+              <div class="stat-title">Aujourd'hui</div>
+              <div class="stat-value">0h</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#f3e8ff;color:#8b5cf6;"><i class="fa-regular fa-calendar-days"></i></div>
+            <div class="stat-body">
+              <div class="stat-title">Cette semaine</div>
+              <div class="stat-value">0h</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-arrow-trend-up"></i></div>
+            <div class="stat-body">
+              <div class="stat-title">Moyenne / jour</div>
+              <div class="stat-value">0.0h</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#ffedd5;color:#ea580c;"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="stat-body">
+              <div class="stat-title">Total</div>
+              <div class="stat-value">0h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =====================
+       MODAL NOUVEAU PROJET
+  ====================== -->
+  <div class="modal-overlay" id="projectModal">
+    <div class="modal">
+      <div class="modal-title">Nouveau Projet</div>
+      <label>
+        <div class="form-label">Nom du projet *</div>
+        <input type="text" class="form-input" placeholder="Ex : Refonte du site web" />
+      </label>
+      <label>
+        <div class="form-label">Description</div>
+        <textarea class="form-input" rows="3" placeholder="Décrivez votre projet..."></textarea>
+      </label>
+      <div style="display:flex;gap:10px;">
+        <label style="flex:1;">
+          <div class="form-label">Date de début</div>
+          <input type="date" class="form-input" />
+        </label>
+        <label style="flex:1;">
+          <div class="form-label">Date de fin</div>
+          <input type="date" class="form-input" />
+        </label>
+      </div>
+      <div class="form-label" style="margin-top:10px;">Couleur du projet</div>
+      <div style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+        <div style="width:38px;height:32px;background:#1e90ff;border-radius:12px;border:3px solid #111;"></div>
+        <div style="width:38px;height:32px;background:#f97316;border-radius:12px;"></div>
+        <div style="width:38px;height:32px;background:#22c55e;border-radius:12px;"></div>
+        <div style="width:38px;height:32px;background:#f43f5e;border-radius:12px;"></div>
+        <div style="width:38px;height:32px;background:#a855f7;border-radius:12px;"></div>
+        <div style="width:38px;height:32px;background:#06b6d4;border-radius:12px;"></div>
+      </div>
+
+      <div class="form-label">Membres de l'équipe</div>
+      <div style="border:1px solid #e2e8f0;border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;">
+        <label><input type="checkbox" /> Gestionnaire (Gestionnaire)</label>
+        <label><input type="checkbox" /> Alice Dupont (Employé)</label>
+        <label><input type="checkbox" /> Bob Martin (Employé)</label>
+        <label><input type="checkbox" /> drtgdtr (Employé)</label>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-light" onclick="closeModal('projectModal')">Annuler</button>
+        <button class="btn-dark">Créer le projet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================
+       MODAL NOUVELLE ENTREE TEMPS
+  ====================== -->
+  <div class="modal-overlay" id="timeModal">
+    <div class="modal">
+      <div class="modal-title">Nouvelle Entrée de Temps</div>
+      <label>
+        <div class="form-label">Projet *</div>
+        <select class="form-select">
+          <option>Sélectionner un projet</option>
+          <option>Refonte site web</option>
+        </select>
+      </label>
+      <label>
+        <div class="form-label">Tâche *</div>
+        <select class="form-select">
+          <option>Sélectionner une tâche</option>
+          <option>Analyse</option>
+          <option>Développement</option>
+        </select>
+      </label>
+      <label>
+        <div class="form-label">Description</div>
+        <textarea class="form-input" rows="2" placeholder="Décrivez le travail effectué..."></textarea>
+      </label>
+      <label>
+        <div class="form-label">Date *</div>
+        <input type="date" class="form-input" value="2025-10-30" />
+      </label>
+      <div style="display:flex;gap:10px;">
+        <label style="flex:1;">
+          <div class="form-label">Heure début</div>
+          <input type="time" class="form-input" />
+        </label>
+        <label style="flex:1;">
+          <div class="form-label">Heure fin</div>
+          <input type="time" class="form-input" />
+        </label>
+      </div>
+      <label>
+        <div class="form-label">Heures *</div>
+        <input type="text" class="form-input" placeholder="Ex : 2.5" />
+      </label>
+
+      <div class="modal-footer">
+        <button class="btn-light" onclick="closeModal('timeModal')">Annuler</button>
+        <button class="btn-dark">Créer l'entrée</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // changer connexion / inscription
+    function switchAuth(type) {
+      const tabs = document.querySelectorAll('.auth-tab');
+      tabs.forEach(t => t.classList.remove('active'));
+      if (type === 'login') {
+        tabs[0].classList.add('active');
+        document.getElementById('loginForm').classList.add('active');
+        document.getElementById('registerForm').classList.remove('active');
+      } else {
+        tabs[1].classList.add('active');
+        document.getElementById('registerForm').classList.add('active');
+        document.getElementById('loginForm').classList.remove('active');
+      }
+    }
+
+    // entrer dans l'app (fake)
+    function enterApp() {
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      // par défaut : projets
+      showPage('projects', document.querySelector('.top-nav button'));
+    }
+
+    // navigation principale
+    function showPage(page, btn) {
+      document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+
+      document.querySelectorAll('.top-nav button').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    // modales
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    // fermer modal en cliquant dehors
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', e => {
+        if (e.target === overlay) {
+          overlay.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

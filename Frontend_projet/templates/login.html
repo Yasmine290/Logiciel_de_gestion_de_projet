@@ -4,14 +4,20 @@
   <meta charset="UTF-8" />
   <title>ProjectTime - Connexion / Inscription</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Styles (Flask version) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
 
   <!-- ECRAN D'AUTH -->
   <div class="auth-wrapper" id="authScreen">
     <div class="auth-box">
+
       <div class="auth-header">
         <div class="auth-icons">
           <div class="icon-pill icon-blue"><i class="fa-solid fa-chart-line"></i></div>
@@ -21,43 +27,61 @@
         <div class="auth-subtitle">Gestion de projets et suivi du temps</div>
       </div>
 
+      <!-- Onglets -->
       <div class="auth-tabs">
         <button class="auth-tab active" onclick="switchAuth('login')">Connexion</button>
         <button class="auth-tab" onclick="switchAuth('register')">Inscription</button>
       </div>
 
-      <!-- Connexion -->
+      <!-- Formulaire Connexion -->
       <div class="auth-form active" id="loginForm">
-        <label><div class="form-label">Email</div>
+        <label>
+          <div class="form-label">Email</div>
           <input type="email" class="form-input" placeholder="nom@entreprise.com" />
         </label>
-        <label><div class="form-label">Mot de passe</div>
+        <label>
+          <div class="form-label">Mot de passe</div>
           <input type="password" class="form-input" placeholder="••••••••" />
         </label>
-        <button class="btn-primary" onclick="enterApp()">Se connecter</button>
+
+        <!-- IMPORTANT : navigation Flask -->
+        <button class="btn-primary" onclick="location.href='{{ url_for('projects') }}'">Se connecter</button>
       </div>
 
-      <!-- Inscription -->
+      <!-- Formulaire Inscription -->
       <div class="auth-form" id="registerForm">
-        <label><div class="form-label">Nom complet</div>
+        <label>
+          <div class="form-label">Nom complet</div>
           <input type="text" class="form-input" placeholder="Jean Dupont" />
         </label>
-        <label><div class="form-label">Email</div>
+        <label>
+          <div class="form-label">Email</div>
           <input type="email" class="form-input" placeholder="jean@entreprise.com" />
         </label>
-        <label><div class="form-label">Mot de passe</div>
+        <label>
+          <div class="form-label">Mot de passe</div>
           <input type="password" class="form-input" placeholder="••••••••" />
         </label>
-        <label><div class="form-label">Rôle</div>
+        <label>
+          <div class="form-label">Rôle</div>
           <select class="form-select">
-            <option>Employé</option><option>Gestionnaire</option><option>Admin</option>
+            <option>Employé</option>
+            <option>Gestionnaire</option>
+            <option>Admin</option>
           </select>
         </label>
-        <button class="btn-primary" onclick="enterApp()"><i class="fa-regular fa-user"></i> Créer un compte</button>
+
+        <!-- IMPORTANT : navigation Flask -->
+        <button class="btn-primary" onclick="location.href='{{ url_for('projects') }}'">
+          <i class="fa-regular fa-user"></i> Créer un compte
+        </button>
       </div>
+
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <!-- JS (Flask version) -->
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+
 </body>
 </html>

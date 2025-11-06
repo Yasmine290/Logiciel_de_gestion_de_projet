@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>ProjectTime - Gantt</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Styles (Flask version) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+  <!-- BARRE DU HAUT -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon"><i class="fa-solid fa-folder-tree"></i></div>
+      <div>ProjectTime</div>
+    </div>
+
+    <div class="top-nav">
+      <button onclick="location.href='{{ url_for('projects') }}'">
+        <i class="fa-solid fa-folder-open"></i> Projets
+      </button>
+      <button class="active" onclick="location.href='{{ url_for('gantt') }}'">
+        <i class="fa-solid fa-bars-staggered"></i> Gantt
+      </button>
+      <button onclick="location.href='{{ url_for('time') }}'">
+        <i class="fa-regular fa-clock"></i> Temps
+      </button>
+    </div>
+
+    <div class="user-pill">
+      <div class="avatar">D</div>
+      <div class="user-info">
+        <div>drtgdtr</div>
+        <small>Employé</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENU -->
+  <div class="content">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div>
+        <div class="page-title">Diagramme de Gantt</div>
+        <div class="page-subtitle">Visualisation chronologique des projets et tâches</div>
+      </div>
+
+      <!-- Sélecteur de projet -->
+      <div>
+        <select class="form-select" style="background:white;min-width:150px;">
+          <option>Tous les projets</option>
+          <option>Refonte Site Web</option>
+          <option>Application Mobile</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- BOITE GANTT -->
+    <div class="gantt-box">
+
+      <!-- Entêtes Mois -->
+      <div class="gantt-header">
+        <strong>sept. 2025</strong>
+        <strong>oct. 2025</strong>
+        <strong>nov. 2025</strong>
+      </div>
+
+      <!-- Tableau Gantt -->
+      <table class="gantt-table">
+        <tr>
+          <th>Nom</th>
+          <th style="width:65%;">Planning</th>
+        </tr>
+
+        <tr>
+          <td>
+            <i class="fa-solid fa-circle" style="color:#1e90ff;margin-right:4px;"></i>
+            Refonte Site Web
+          </td>
+          <td>
+            <div class="gantt-bar" style="background:linear-gradient(90deg,#bfdbfe,#1e40af);width:80%;"></div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding-left:22px;">Phase de Design</td>
+          <td>
+            <div class="gantt-bar" style="background:#86efac;width:50%;"></div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding-left:22px;">Conception maquettes</td>
+          <td>
+            <div class="gantt-bar" style="background:#86efac;width:35%;"></div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding-left:22px;">Développement Frontend</td>
+          <td>
+            <div class="gantt-bar" style="background:linear-gradient(90deg,#bfdbfe,#1d4ed8);width:40%;"></div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Légendes -->
+      <div style="margin-top:20px;display:flex;gap:24px;">
+        <div>Statuts :</div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+
+          <div>
+            <span style="background:#e2e8f0;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span>
+            Actif
+          </div>
+
+          <div>
+            <span style="background:#fef3c7;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span>
+            En attente
+          </div>
+
+          <div>
+            <span style="background:#bfdbfe;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span>
+            En cours
+          </div>
+
+          <div>
+            <span style="background:#fed7aa;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span>
+            En révision
+          </div>
+
+          <div>
+            <span style="background:#bbf7d0;width:13px;height:13px;display:inline-block;border-radius:4px;margin-right:4px;"></span>
+            Terminé
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JS (Flask version) -->
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+</body>
+</html>

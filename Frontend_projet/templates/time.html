@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>ProjectTime - Temps</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Styles (Flask version) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+  <!-- BARRE DU HAUT -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon"><i class="fa-solid fa-folder-tree"></i></div>
+      <div>ProjectTime</div>
+    </div>
+
+    <div class="top-nav">
+      <button onclick="location.href='{{ url_for('projects') }}'">
+        <i class="fa-solid fa-folder-open"></i> Projets
+      </button>
+      <button onclick="location.href='{{ url_for('gantt') }}'">
+        <i class="fa-solid fa-bars-staggered"></i> Gantt
+      </button>
+      <button class="active" onclick="location.href='{{ url_for('time') }}'">
+        <i class="fa-regular fa-clock"></i> Temps
+      </button>
+    </div>
+
+    <div class="user-pill">
+      <div class="avatar">D</div>
+      <div class="user-info">
+        <div>drtgdtr</div>
+        <small>Employé</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENU PRINCIPAL -->
+  <div class="content">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div>
+        <div class="page-title">Suivi du Temps</div>
+        <div class="page-subtitle">Enregistrez et analysez votre temps de travail</div>
+      </div>
+
+      <!-- Bouton ouverture modale -->
+      <button class="btn-dark" onclick="openModal('timeModal')">
+        <i class="fa-solid fa-plus"></i> Nouvelle Entrée
+      </button>
+    </div>
+
+    <!-- STATISTIQUES -->
+    <div class="cards-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#e7f0ff;color:#1e90ff;">
+          <i class="fa-regular fa-clock"></i>
+        </div>
+        <div class="stat-body">
+          <div class="stat-title">Aujourd'hui</div>
+          <div class="stat-value">0h</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#f3e8ff;color:#8b5cf6;">
+          <i class="fa-regular fa-calendar-days"></i>
+        </div>
+        <div class="stat-body">
+          <div class="stat-title">Cette semaine</div>
+          <div class="stat-value">0h</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;">
+          <i class="fa-solid fa-arrow-trend-up"></i>
+        </div>
+        <div class="stat-body">
+          <div class="stat-title">Moyenne / jour</div>
+          <div class="stat-value">0.0h</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#ffedd5;color:#ea580c;">
+          <i class="fa-solid fa-bullseye"></i>
+        </div>
+        <div class="stat-body">
+          <div class="stat-title">Total</div>
+          <div class="stat-value">0h</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODALE NOUVELLE ENTRÉE TEMPS -->
+  <div class="modal-overlay" id="timeModal">
+    <div class="modal">
+      <div class="modal-title">Nouvelle Entrée de Temps</div>
+
+      <label>
+        <div class="form-label">Projet *</div>
+        <select class="form-select">
+          <option>Sélectionner un projet</option>
+          <option>Refonte site web</option>
+        </select>
+      </label>
+
+      <label>
+        <div class="form-label">Tâche *</div>
+        <select class="form-select">
+          <option>Sélectionner une tâche</option>
+          <option>Analyse</option>
+          <option>Développement</option>
+        </select>
+      </label>
+
+      <label>
+        <div class="form-label">Description</div>
+        <textarea class="form-input" rows="2" placeholder="Décrivez le travail effectué..."></textarea>
+      </label>
+
+      <label>
+        <div class="form-label">Date *</div>
+        <input type="date" class="form-input">
+      </label>
+
+      <div style="display:flex;gap:10px;">
+        <label style="flex:1;">
+          <div class="form-label">Heure début</div>
+          <input type="time" class="form-input">
+        </label>
+        <label style="flex:1;">
+          <div class="form-label">Heure fin</div>
+          <input type="time" class="form-input">
+        </label>
+      </div>
+
+      <label>
+        <div class="form-label">Heures *</div>
+        <input type="text" class="form-input" placeholder="Ex : 2.5">
+      </label>
+
+      <div class="modal-footer">
+        <button class="btn-light" onclick="closeModal('timeModal')">Annuler</button>
+        <button class="btn-dark">Créer l'entrée</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS (Flask version) -->
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+</body>
+</html>
