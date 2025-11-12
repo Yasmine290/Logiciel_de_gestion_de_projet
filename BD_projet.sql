@@ -329,4 +329,108 @@ SELECT * FROM projet;
 SELECT idTache, nomTache FROM tache WHERE idProjet=1;
 SELECT * FROM v_temps_par_tache WHERE idProjet=1;
 
+-- --------------------------------------------------
+-- Membres du projet (Projet <-> Employé) + Vues + Triggers
+-- --------------------------------------------------
+USE project_time_gestion;
 
+-- Sécurité si tu rejoues le patch
+DROP TRIGGER IF EXISTS ai_affectation_tache_ep;
+DROP TRIGGER IF EXISTS ad_affectation_tache_ep;
+
+-- 1) Appartenance Employé ↔ Projet (membres du projet)
+CREATE TABLE IF NOT EXISTS employe_projet (
+  idProjet      INT NOT NULL,
+  idEmploye     INT NOT NULL,
+  roleProjet    VARCHAR(80)   NULL,   -- Chef de projet, Développeur, QA...
+  tauxHoraire   DECIMAL(10,2) NULL,   -- (optionnel) surcharge par projet
+  allocationPct DECIMAL(5,2)  NULL,   -- (optionnel) % d’allocation
+  dateDebut     DATE          NULL,
+  dateFin       DATE          NULL,
+  isActif       TINYINT    NOT NULL DEFAULT 1,
+  PRIMARY KEY (idProjet, idEmploye),
+  CONSTRAINT fk_ep_projet  FOREIGN KEY (idProjet)  REFERENCES projet(idProjet)   ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_ep_employe FOREIGN KEY (idEmploye) REFERENCES employe(idEmploye) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_ep_projet  ON employe_projet(idProjet);
+CREATE INDEX idx_ep_employe ON employe_projet(idEmploye);
+
+--    (si ça dit "index exists", lance d'abord le DROP juste en dessous)
+-- 2) Vues (y compris celles manquantes et déjà utilisées plus bas)
+CREATE OR REPLACE VIEW v_temps_par_tache AS
+SELECT t.idTache,
+       t.nomTache,
+       t.idProjet,
+       COALESCE(SUM(st.heures),0) AS heuresConsommees
+FROM tache t
+LEFT JOIN saisie_temps st ON st.idTache = t.idTache
+GROUP BY t.idTache, t.nomTache, t.idProjet;
+
+CREATE OR REPLACE VIEW v_temps_semaine_par_employe AS
+SELECT st.idEmploye,
+       YEARWEEK(st.dateTravail, 3) AS anneeSemaine,
+       SUM(st.heures) AS heuresSemaine
+FROM saisie_temps st
+GROUP BY st.idEmploye, YEARWEEK(st.dateTravail, 3);
+
+CREATE OR REPLACE VIEW v_membres_projet AS
+SELECT
+  p.idProjet,
+  p.nomProjet,
+  e.idEmploye,
+  e.prenomEmploye,
+  e.nomEmploye,
+  ep.roleProjet,
+  ep.allocationPct,
+  ep.isActif
+FROM employe_projet ep
+JOIN projet  p ON p.idProjet  = ep.idProjet
+JOIN employe e ON e.idEmploye = ep.idEmploye;
+
+-- 3) Backfill : transforme les affectations de tâches existantes en membres de projet
+INSERT IGNORE INTO employe_projet (idProjet, idEmploye, roleProjet, dateDebut, isActif)
+SELECT DISTINCT t.idProjet, a.idEmploye, a.roleSurLaTache, CURDATE(), 1
+FROM affectation_tache a
+JOIN tache t ON t.idTache = a.idTache;
+
+-- 4) Triggers de cohérence (affectations <-> membres projet)
+DELIMITER $$
+
+CREATE TRIGGER ai_affectation_tache_ep
+AFTER INSERT ON affectation_tache
+FOR EACH ROW
+BEGIN
+  DECLARE v_projet INT;
+  SELECT idProjet INTO v_projet FROM tache WHERE idTache = NEW.idTache;
+
+  INSERT INTO employe_projet (idProjet, idEmploye, roleProjet, isActif, dateDebut)
+  VALUES (v_projet, NEW.idEmploye, NEW.roleSurLaTache, 1, CURDATE())
+  ON DUPLICATE KEY UPDATE
+    isActif    = 1,
+    roleProjet = COALESCE(NEW.roleSurLaTache, employe_projet.roleProjet),
+    dateFin    = NULL;
+END$$
+
+CREATE TRIGGER ad_affectation_tache_ep
+AFTER DELETE ON affectation_tache
+FOR EACH ROW
+BEGIN
+  DECLARE v_projet INT;
+  DECLARE v_restes INT;
+
+  SELECT idProjet INTO v_projet FROM tache WHERE idTache = OLD.idTache;
+
+  SELECT COUNT(*) INTO v_restes
+  FROM affectation_tache a
+  JOIN tache t ON t.idTache = a.idTache
+  WHERE a.idEmploye = OLD.idEmploye AND t.idProjet = v_projet;
+
+  IF v_restes = 0 THEN
+    UPDATE employe_projet
+      SET isActif = 0, dateFin = COALESCE(dateFin, CURDATE())
+    WHERE idProjet = v_projet AND idEmploye = OLD.idEmploye;
+  END IF;
+END$$
+
+DELIMITER ;
