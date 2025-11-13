@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Détails du Projet - ProjectTime</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <!-- ========================= BARRE DE NAVIGATION ========================= -->
+  <header>
+    <div class="nav-left">
+      <i class="fa-solid fa-diagram-project"></i>
+      <strong>ProjectTime</strong>
+    </div>
+
+    <div class="nav-links">
+      <button class="active" onclick="window.location.href='/projects'"><i class="fa-solid fa-briefcase"></i> Projets</button>
+      <button onclick="window.location.href='/gantt'"><i class="fa-solid fa-chart-gantt"></i> Gantt</button>
+      <button onclick="window.location.href='/time'"><i class="fa-solid fa-clock"></i> Temps</button>
+    </div>
+
+    <div class="profile">
+      <div class="avatar">H</div>
+      <div>
+        <span>hjrfhr</span><br />
+        <small>Employé</small>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================= CONTENU PRINCIPAL ========================= -->
+  <main id="projectDetailsContainer" style="padding: 40px 60px;">
+    <!-- ⚙️ Ce contenu est chargé dynamiquement par main.js -->
+    <!-- Exemple : nom du projet, description, avatars, progression, tâches -->
+    <button class="btn-primary" onclick="openTacheModal()" style="margin-bottom:20px;">
+      <i class="fa-solid fa-plus"></i> Nouvelle tâche
+    </button>
+  </main>
+    <!-- Bouton existant corrigé pour ouvrir la modale -->
+    <!-- ==================== MODALE AJOUT DE TÂCHE ==================== -->
+    <div id="modalTache" class="modal hidden">
+    <div class="modal-content" style="width: 520px;">
+  <h3 style="display:flex;align-items:center;gap:8px;font-weight:700;color:#0b0b20;margin-bottom:1.5rem;">
+  <i class="fa-solid fa-list-check"></i> <span style="cursor:pointer;" onclick="openTacheModal()">Nouvelle Tâche</span>
+  </h3>
+
+        <form id="formTache" style="display:flex;flex-direction:column;gap:1rem;">
+        <div>
+            <label>Titre *</label>
+            <input id="titreTache" type="text" placeholder="Ex : Créer les maquettes" required
+            style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+        </div>
+
+        <div>
+            <label>Description</label>
+            <textarea id="descTache" placeholder="Décrivez la tâche..."
+            style="width:100%;height:70px;border:none;background:#f7f7fa;border-radius:10px;resize:none;"></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+            <div style="flex:1;">
+      <label>Statut</label>
+      <select id="statutTache" style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+        <option>À faire</option>
+        <option>En cours</option>
+        <option>En révision</option>
+        <option>Terminée</option>
+      </select>
+            </div>
+            <div style="flex:1;">
+            <label>Priorité</label>
+            <select id="prioriteTache" style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+                <option>Moyenne</option>
+                <option>Basse</option>
+                <option>Haute</option>
+            </select>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+            <div style="flex:1;">
+            <label>Date de début</label>
+            <input id="dateDebutTache" type="date"
+                style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+            </div>
+            <div style="flex:1;">
+            <label>Date d’échéance</label>
+            <input id="dateFinTache" type="date"
+                style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+            </div>
+        </div>
+
+        <div>
+            <label>Heures estimées</label>
+            <input id="heuresTache" type="number" placeholder="Ex : 8"
+            style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+        </div>
+
+        <div>
+            <label>Assigné à</label>
+            <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+            <label><input type="checkbox"> Gestionnaire (manager@example.com)</label>
+            <label><input type="checkbox"> Alice Dupont (alice@example.com)</label>
+            <label><input type="checkbox"> Bob Martin (bob@example.com)</label>
+            <label><input type="checkbox"> hjrfhr (hjrfhr@fd)</label>
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+            <button type="button" onclick="closeModal('modalTache')" 
+            style="background:transparent;color:#111;border:none;font-weight:600;cursor:pointer;">Annuler</button>
+            <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Créer la tâche</button>
+        </div>
+        </form>
+    </div>
+    </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

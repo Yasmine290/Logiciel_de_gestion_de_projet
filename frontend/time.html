@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suivi du Temps - ProjectTime</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="nav-left">
+      <i class="fa-solid fa-diagram-project"></i>
+      <strong>ProjectTime</strong>
+    </div>
+
+    <div class="nav-links">
+      <button onclick="window.location.href='/projects'"><i class="fa-solid fa-briefcase"></i> Projets</button>
+      <button onclick="window.location.href='/gantt'"><i class="fa-solid fa-chart-gantt"></i> Gantt</button>
+      <button class="active" onclick="window.location.href='/time'"><i class="fa-solid fa-clock"></i> Temps</button>
+    </div>
+
+    <div class="profile">
+      <div class="avatar">D</div>
+      <div>
+        <span>drtgdt</span><br />
+        <small>Employé</small>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <h2>Suivi du Temps</h2>
+    <p>Enregistrez et analysez votre temps de travail</p>
+
+    <div class="time-cards">
+      <div class="time-card"><div>Aujourd’hui<br><strong>0h</strong></div><i class="fa-solid fa-clock icon blue"></i></div>
+      <div class="time-card"><div>Cette semaine<br><strong>0h</strong></div><i class="fa-solid fa-calendar icon purple"></i></div>
+      <div class="time-card"><div>Moyenne/jour<br><strong>0.0h</strong></div><i class="fa-solid fa-chart-line icon green"></i></div>
+      <div class="time-card"><div>Total<br><strong>0h</strong></div><i class="fa-solid fa-bullseye icon orange"></i></div>
+    </div>
+
+    <br />
+    <button class="btn-primary" onclick="openModal('modalTemps')">
+      <i class="fa-solid fa-plus"></i> Nouvelle Entrée
+    </button>
+    
+      <!-- Modale d’ajout de temps (corrigée et stylée) -->
+    <div id="modalTemps" class="modal hidden">
+      <div class="modal-content">
+        <h3 style="display:flex; align-items:center; gap:8px; font-weight:700; color:#0b0b20; margin-bottom:1.5rem;">
+          <i class="fa-solid fa-clock"></i> Nouvelle Entrée de Temps
+        </h3>
+
+        <form id="form-temps" style="display:flex; flex-direction:column; gap:1rem;">
+          <!-- Projet -->
+          <div>
+            <label style="font-weight:600;">Projet *</label>
+            <select id="projet_id"
+              style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" required>
+              <option>Sélectionner un projet</option>
+              <option>Projet Alpha</option>
+              <option>Projet Beta</option>
+            </select>
+          </div>
+
+          <!-- Tâche -->
+          <div>
+            <label style="font-weight:600;">Tâche *</label>
+            <input type="text" placeholder="Ex: Design interface"
+              style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" required />
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label style="font-weight:600;">Description</label>
+            <textarea placeholder="Décrivez le travail effectué..."
+              style="width:100%; height:70px; border:none; background:#f7f7fa; border-radius:10px; resize:none;"></textarea>
+          </div>
+
+          <!-- Date -->
+          <div>
+            <label style="font-weight:600;">Date *</label>
+            <input type="date" id="date"
+              style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" required />
+          </div>
+
+          <!-- Heures -->
+          <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+              <label style="font-weight:600;">Heure début</label>
+              <input type="time"
+                style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" />
+            </div>
+            <div style="flex:1;">
+              <label style="font-weight:600;">Heure fin</label>
+              <input type="time"
+                style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" />
+            </div>
+          </div>
+
+          <div>
+            <label style="font-weight:600;">Heures *</label>
+            <input type="number" step="0.1" placeholder="Ex: 2.5"
+              style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" required />
+          </div>
+
+          <!-- Boutons -->
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+            <button type="button" onclick="closeModal('modalTemps')"
+              style="background:transparent; color:#111; border:none; font-weight:600; cursor:pointer;">Annuler</button>
+
+            <button type="submit"
+              style="background:#0b0b20; color:white; border:none; padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer;">
+              <i class="fa-solid fa-plus"></i> Créer l’entrée
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagramme de Gantt - ProjectTime</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="nav-left">
+      <i class="fa-solid fa-diagram-project"></i>
+      <strong>ProjectTime</strong>
+    </div>
+
+    <div class="nav-links">
+      <button onclick="window.location.href='/projects'"><i class="fa-solid fa-briefcase"></i> Projets</button>
+      <button class="active" onclick="window.location.href='/gantt'"><i class="fa-solid fa-chart-gantt"></i> Gantt</button>
+      <button onclick="window.location.href='/time'"><i class="fa-solid fa-clock"></i> Temps</button>
+    </div>
+
+    <div class="profile">
+      <div class="avatar">D</div>
+      <div>
+        <span>drtgdt</span><br />
+        <small>Employé</small>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <h2>Diagramme de Gantt</h2>
+    <p>Visualisation chronologique des projets et tâches</p>
+
+    <div class="gantt-container">
+      <img src="assets/img/gantt-demo.png" alt="Gantt Placeholder" style="width:100%; border-radius:8px;">
+    </div>
+
+    <div class="status-legend">
+      <span><div class="status-dot dot-gray"></div> Actif</span>
+      <span><div class="status-dot dot-yellow"></div> En attente</span>
+      <span><div class="status-dot dot-blue"></div> En cours</span>
+      <span><div class="status-dot dot-orange"></div> En révision</span>
+      <span><div class="status-dot dot-green"></div> Terminé</span>
+    </div>
+  </main>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion / Inscription - ProjectTime</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <!-- Icônes du haut -->
+  <div class="icons-top">
+    <i class="fa-solid fa-diagram-project blue"></i>
+    <i class="fa-solid fa-clock purple"></i>
+  </div>
+
+  <!-- Bloc principal -->
+  <div class="container">
+    <h1>Gestionnaire de Projets et Temps</h1>
+    <h2>Gestion de projets et suivi du temps</h2>
+
+    <!-- Onglets -->
+    <div class="auth-buttons">
+      <button id="btnLogin" class="active" onclick="switchAuth('login')">Connexion</button>
+      <button id="btnRegister" onclick="switchAuth('register')">Inscription</button>
+    </div>
+
+    <!-- Formulaire de connexion -->
+    <form id="loginForm" class="auth-form">
+      <label>Email</label>
+      <input type="email" placeholder="nom@entreprise.com" required />
+
+      <label>Mot de passe</label>
+      <input type="password" placeholder="********" required />
+
+      <button type="submit"><i class="fa-solid fa-right-to-bracket"></i> Se connecter</button>
+    </form>
+
+    <!-- Formulaire d'inscription -->
+    <form id="registerForm" class="auth-form hidden">
+      <label>Nom complet</label>
+      <input type="text" placeholder="Jean Dupont" required />
+
+      <label>Email</label>
+      <input type="email" placeholder="jean@entreprise.com" required />
+
+      <label>Mot de passe</label>
+      <input type="password" placeholder="********" required />
+
+      <label>Rôle</label>
+      <select>
+        <option>Employé</option>
+        <option>Gestionnaire</option>
+      </select>
+
+      <button type="submit"><i class="fa-solid fa-user-plus"></i> Créer un compte</button>
+    </form>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

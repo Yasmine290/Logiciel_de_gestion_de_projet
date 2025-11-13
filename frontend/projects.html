@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestion de Projets - ProjectTime</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="nav-left">
+      <i class="fa-solid fa-diagram-project"></i>
+      <strong>ProjectTime</strong>
+    </div>
+
+    <div class="nav-links">
+      <button class="active" onclick="window.location.href='/projects'"><i class="fa-solid fa-briefcase"></i> Projets</button>
+      <button onclick="window.location.href='/gantt'"><i class="fa-solid fa-chart-gantt"></i> Gantt</button>
+      <button onclick="window.location.href='/time'"><i class="fa-solid fa-clock"></i> Temps</button>
+    </div>
+
+    <div class="profile">
+      <div class="avatar">D</div>
+      <div>
+        <span>drtgdt</span><br />
+        <small>Employé</small>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <h2>Gestion de Projets</h2>
+    <p>Gérez vos projets et tâches efficacement</p>
+
+    <div class="stats-cards">
+      <div class="card">
+        <div>
+          <strong>0</strong>
+          <span>Projets Actifs</span>
+        </div>
+        <div class="icon blue"><i class="fa-solid fa-diagram-project"></i></div>
+      </div>
+
+      <div class="card">
+        <div>
+          <strong>0</strong>
+          <span>Tâches Terminées</span>
+        </div>
+        <div class="icon green"><i class="fa-solid fa-check"></i></div>
+      </div>
+
+      <div class="card">
+        <div>
+          <strong>2</strong>
+          <span>En Cours</span>
+        </div>
+        <div class="icon orange"><i class="fa-solid fa-clock"></i></div>
+      </div>
+
+      <div class="card">
+        <div>
+          <strong>4</strong>
+          <span>En Retard</span>
+        </div>
+        <div class="icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      </div>
+    </div>
+
+    <br />
+    <button class="btn-primary" onclick="openModal('modalProjet')">
+      <i class="fa-solid fa-plus"></i> Nouveau Projet
+    </button>
+
+    <!-- ===== LISTE DES PROJETS ===== -->
+    <div id="liste-projets" class="projects-grid">
+      <!-- Les cartes de projets seront générées ici par main.js -->
+    </div>
+
+    <!-- ===== MODALE AJOUT DE PROJET ===== -->
+    <div id="modalProjet" class="modal hidden">
+      <div class="modal-content">
+        <h3 style="display:flex; align-items:center; gap:8px; font-weight:700; color:#0b0b20; margin-bottom:1.5rem;">
+          <i class="fa-solid fa-folder-plus"></i> Nouveau Projet
+        </h3>
+
+        <form id="formProjet" style="display:flex; flex-direction:column; gap:1rem;">
+          <!-- Nom du projet -->
+          <div>
+            <label style="font-weight:600;">Nom du projet *</label>
+            <input id="nomProjet" type="text" placeholder="Ex: Refonte du site web" required
+              style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" />
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label style="font-weight:600;">Description</label>
+            <textarea id="descProjet" placeholder="Décrivez votre projet..."
+              style="width:100%; height:70px; border:none; background:#f7f7fa; border-radius:10px; resize:none;"></textarea>
+          </div>
+
+          <!-- Dates -->
+          <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+              <label style="font-weight:600;">Date de début</label>
+              <input id="dateDebut" type="date"
+                style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" />
+            </div>
+            <div style="flex:1;">
+              <label style="font-weight:600;">Date de fin</label>
+              <input id="dateFin" type="date"
+                style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" />
+            </div>
+          </div>
+          <!-- Statut du projet -->
+          <div>
+            <label style="font-weight:600;">Statut du projet</label>
+            <select id="statutProjet" style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;">
+              <option>À faire</option>
+              <option>En cours</option>
+              <option>Terminé</option>
+              <option>En retard</option>
+            </select>
+          </div>
+
+          <!-- Couleur du projet -->
+          <div>
+            <label style="font-weight:600;">Couleur du projet</label>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+              <div class="color-swatch" style="background:#2563eb;"></div>
+              <div class="color-swatch" style="background:#8b5cf6;"></div>
+              <div class="color-swatch" style="background:#22c55e;"></div>
+              <div class="color-swatch" style="background:#fb923c;"></div>
+              <div class="color-swatch" style="background:#ec4899;"></div>
+              <div class="color-swatch" style="background:#3b82f6;"></div>
+              <div class="color-swatch" style="background:#14b8a6;"></div>
+            </div>
+          </div>
+
+          <!-- Membres de l'équipe -->
+          <div>
+            <label style="font-weight:600;">Membres de l’équipe</label>
+            <div style="display:flex; flex-direction:column; gap:4px; margin-top:6px;">
+              <label><input type="checkbox" /> Gestionnaire <small>(Gestionnaire)</small></label>
+              <label><input type="checkbox" /> Alice Dupont <small>(Employé)</small></label>
+              <label><input type="checkbox" /> Bob Martin <small>(Employé)</small></label>
+              <label><input type="checkbox" /> drtgdt <small>(Employé)</small></label>
+            </div>
+          </div>
+
+          <!-- Boutons -->
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+            <button type="button" onclick="closeModal('modalProjet')"
+              style="background:transparent; color:#111; border:none; font-weight:600; cursor:pointer;">Annuler</button>
+
+            <button type="submit"
+              style="background:#0b0b20; color:white; border:none; padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer;">
+              <i class="fa-solid fa-plus"></i> Créer le projet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
