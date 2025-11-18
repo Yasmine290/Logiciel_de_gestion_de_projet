@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestion des Utilisateurs - ProjectTime</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="nav-left">
+      <i class="fa-solid fa-diagram-project"></i>
+      <strong>ProjectTime</strong>
+    </div>
+
+    <div class="nav-links">
+      <button onclick="window.location.href='/projects'"><i class="fa-solid fa-briefcase"></i> Projets</button>
+      <button onclick="window.location.href='/gantt'"><i class="fa-solid fa-chart-gantt"></i> Gantt</button>
+      <button onclick="window.location.href='/time'"><i class="fa-solid fa-clock"></i> Temps</button>
+      <button class="active" onclick="window.location.href='/users'"><i class="fa-solid fa-users"></i> Utilisateurs</button>
+    </div>
+
+    <div class="profile">
+      <div class="avatar" id="userAvatar">Y</div>
+      <div>
+        <span id="userName">Utilisateur</span><br />
+        <small id="userRole">Admin</small>
+      </div>
+      <button id="btnLogout" style="margin-left:16px;background:#e5e7eb;border:none;border-radius:8px;padding:6px 14px;font-weight:600;cursor:pointer;">Déconnexion</button>
+    </div>
+  </header>
+
+  <main>
+    <h2>Gestion des Utilisateurs</h2>
+    <p>Gérez les accès et les rôles des utilisateurs</p>
+
+    <!-- Statistiques des rôles -->
+    <div class="stats-cards">
+      <div class="card" style="cursor: pointer; user-select: none;" title="Cliquez pour filtrer les administrateurs">
+        <div>
+          <strong id="countAdmins">0</strong>
+          <span>Administrateurs</span>
+        </div>
+        <div class="icon" style="background:#ef4444;"><i class="fa-solid fa-shield-halved"></i></div>
+      </div>
+
+      <div class="card" style="cursor: pointer; user-select: none;" title="Cliquez pour filtrer les gestionnaires">
+        <div>
+          <strong id="countGestionnaires">0</strong>
+          <span>Gestionnaires</span>
+        </div>
+        <div class="icon" style="background:#3b82f6;"><i class="fa-solid fa-user-tie"></i></div>
+      </div>
+
+      <div class="card" style="cursor: pointer; user-select: none;" title="Cliquez pour filtrer les employés">
+        <div>
+          <strong id="countEmployes">0</strong>
+          <span>Employés</span>
+        </div>
+        <div class="icon green"><i class="fa-solid fa-users"></i></div>
+      </div>
+    </div>
+
+    <!-- Tableau des utilisateurs -->
+    <div class="users-table-container" style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <table class="users-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid #e5e7eb;">
+            <th style="text-align: left; padding: 16px; font-weight: 600; color: #374151; font-size: 0.95rem;">Utilisateur</th>
+            <th style="text-align: left; padding: 16px; font-weight: 600; color: #374151; font-size: 0.95rem;">Email</th>
+            <th style="text-align: left; padding: 16px; font-weight: 600; color: #374151; font-size: 0.95rem;">Rôle</th>
+            <th style="text-align: center; padding: 16px; font-weight: 600; color: #374151; font-size: 0.95rem;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          <!-- Les utilisateurs seront chargés dynamiquement -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Description des rôles -->
+    <h3 style="color: #0b0b20; font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Description des rôles</h3>
+    
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div style="background: white; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: flex-start; gap: 14px;">
+        <div style="background: #fef2f2; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i class="fa-solid fa-shield-halved" style="font-size: 1.3rem; color: #ef4444;"></i>
+        </div>
+        <div>
+          <h4 style="color: #111827; font-weight: 600; margin-bottom: 4px; font-size: 0.95rem;">Administrateur</h4>
+          <p style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Accès complet à toutes les fonctionnalités du système</p>
+        </div>
+      </div>
+
+      <div style="background: white; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: flex-start; gap: 14px;">
+        <div style="background: #eff6ff; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i class="fa-solid fa-user-tie" style="font-size: 1.3rem; color: #3b82f6;"></i>
+        </div>
+        <div>
+          <h4 style="color: #111827; font-weight: 600; margin-bottom: 4px; font-size: 0.95rem;">Gestionnaire de projet</h4>
+          <p style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Accès complet sur ses projets (créateur), accès en lecture sur les autres projets</p>
+        </div>
+      </div>
+
+      <div style="background: white; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: flex-start; gap: 14px;">
+        <div style="background: #f0fdf4; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i class="fa-solid fa-users" style="font-size: 1.3rem; color: #22c55e;"></i>
+        </div>
+        <div>
+          <h4 style="color: #111827; font-weight: 600; margin-bottom: 4px; font-size: 0.95rem;">Employé</h4>
+          <p style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Accès en lecture sur les tâches assignées, peut voir les heures estimées et utilisées</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modale de confirmation de suppression -->
+  <div id="modalConfirmationSuppression" class="modal hidden" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);">
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: #fef2f2; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.5rem; color: #ef4444;"></i>
+        </div>
+        <div>
+          <h3 style="color: #111827; font-weight: 700; font-size: 1.2rem; margin-bottom: 4px;">Confirmer la suppression</h3>
+          <p style="color: #6b7280; font-size: 0.95rem; margin: 0;">Cette action est irréversible</p>
+        </div>
+      </div>
+      
+      <p id="messageConfirmationSuppression" style="color: #374151; font-size: 1rem; line-height: 1.6; margin-bottom: 24px; padding: 16px; background: #f9fafb; border-radius: 10px; border-left: 3px solid #ef4444;">
+        <!-- Le message sera inséré ici dynamiquement -->
+      </p>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button id="btnAnnulerSuppression" style="background: #f3f4f6; color: #374151; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: all 0.2s;">
+          <i class="fa-solid fa-xmark"></i> Annuler
+        </button>
+        <button id="btnConfirmerSuppression" style="background: #ef4444; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: all 0.2s;">
+          <i class="fa-solid fa-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+  <script>
+    // Vérifier l'accès à cette page
+    window.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      
+      // Rediriger si pas admin ou gestionnaire
+      if (!user.idRole || (user.idRole !== 1 && user.idRole !== 2)) {
+        alert('Accès refusé. Cette page est réservée aux administrateurs et gestionnaires.');
+        window.location.href = '/projects';
+        return;
+      }
+
+      // Afficher les infos utilisateur
+      // Prioriser : prenomEmploye > nomEmploye > 'Utilisateur'
+      const displayName = user.prenomEmploye || user.nomEmploye || 'Utilisateur';
+      document.getElementById('userName').textContent = displayName;
+      
+      const roleSpan = document.getElementById('userRole');
+      const avatarDiv = document.getElementById('userAvatar');
+      
+      if (user.idRole === 1) {
+        roleSpan.textContent = 'Administrateur';
+      } else if (user.idRole === 2) {
+        roleSpan.textContent = 'Gestionnaire';
+      } else {
+        roleSpan.textContent = 'Employé';
+      }
+      
+      // Afficher l'avatar avec les initiales
+      const initiales = getInitiales(user.nomEmploye, user.prenomEmploye);
+      avatarDiv.textContent = initiales;
+
+      // Gérer la déconnexion
+      document.getElementById('btnLogout').addEventListener('click', () => {
+        sessionStorage.clear();
+        window.location.href = '/login';
+      });
+
+      // Charger les utilisateurs
+      chargerUtilisateurs();
+      
+      // Ajouter les événements de clic sur les cartes pour filtrer
+      document.querySelectorAll('.stats-cards .card').forEach((card, index) => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+          let roleFilter = null;
+          if (index === 0) roleFilter = 1; // Administrateurs
+          else if (index === 1) roleFilter = 2; // Gestionnaires
+          else if (index === 2) roleFilter = 3; // Employés
+          chargerUtilisateurs(roleFilter);
+        });
+      });
+
+      chargerUtilisateurs();
+    });
+
+    let tousLesUtilisateurs = [];
+
+    function chargerUtilisateurs(roleFilter = null) {
+      fetch('http://127.0.0.1:5000/api/employes')
+        .then(res => res.json())
+        .then(users => {
+          tousLesUtilisateurs = users;
+          
+          // Compter par rôle
+          const admins = users.filter(u => u.idRole === 1).length;
+          const gestionnaires = users.filter(u => u.idRole === 2).length;
+          const employes = users.filter(u => u.idRole === 3).length;
+
+          document.getElementById('countAdmins').textContent = admins;
+          document.getElementById('countGestionnaires').textContent = gestionnaires;
+          document.getElementById('countEmployes').textContent = employes;
+
+          // Filtrer les utilisateurs si un rôle est sélectionné
+          const usersFiltres = roleFilter ? users.filter(u => u.idRole === roleFilter) : users;
+
+          // Ajouter un indicateur de filtre actif
+          const tableContainer = document.querySelector('.users-table-container');
+          const existingFilter = tableContainer.querySelector('.filter-indicator');
+          if (existingFilter) existingFilter.remove();
+
+          if (roleFilter) {
+            const roleNames = { 1: 'Administrateurs', 2: 'Gestionnaires', 3: 'Employés' };
+            const filterIndicator = document.createElement('div');
+            filterIndicator.className = 'filter-indicator';
+            filterIndicator.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 12px 16px; background: #f3f4f6; border-radius: 8px;';
+            filterIndicator.innerHTML = `
+              <span style="font-weight: 600; color: #374151;">
+                <i class="fa-solid fa-filter"></i> Filtré par: ${roleNames[roleFilter]} (${usersFiltres.length})
+              </span>
+              <button onclick="chargerUtilisateurs()" style="background: #e5e7eb; color: #374151; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+                <i class="fa-solid fa-xmark"></i> Réinitialiser
+              </button>
+            `;
+            tableContainer.insertBefore(filterIndicator, tableContainer.querySelector('table'));
+          }
+
+          // Remplir le tableau
+          const tbody = document.getElementById('usersTableBody');
+          tbody.innerHTML = '';
+
+          if (usersFiltres.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px; color: #9ca3af;">Aucun utilisateur trouvé</td></tr>';
+            return;
+          }
+
+          usersFiltres.forEach(user => {
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid #f3f4f6';
+            
+            // Déterminer le badge de rôle
+            let roleBadge = '';
+            let roleColor = '';
+            if (user.idRole === 1) {
+              roleBadge = 'Administrateur';
+              roleColor = '#ef4444';
+            } else if (user.idRole === 2) {
+              roleBadge = 'Gestionnaire';
+              roleColor = '#1f2937';
+            } else {
+              roleBadge = 'Employé';
+              roleColor = '#3b82f6';
+            }
+
+            // Initiales pour l'avatar
+            const initiales = getInitiales(user.nomEmploye, user.prenomEmploye);
+            
+            tr.innerHTML = `
+              <td style="padding: 14px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 38px; height: 38px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #374151; font-size: 0.9rem;">
+                    ${initiales}
+                  </div>
+                  <span style="font-weight: 500; color: #111827; font-size: 0.95rem;">${user.prenomEmploye || ''} ${user.nomEmploye || ''}</span>
+                </div>
+              </td>
+              <td style="padding: 14px; color: #6b7280; font-size: 0.95rem;">${user.courrielEmploye || 'N/A'}</td>
+              <td style="padding: 14px;">
+                <span style="background: ${roleColor}; color: white; padding: 5px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-block;">
+                  ${roleBadge}
+                </span>
+              </td>
+              <td style="padding: 14px; text-align: center;">
+                <button onclick="supprimerUtilisateur(${user.idEmploye}, '${user.prenomEmploye || ''} ${user.nomEmploye || ''}')" 
+                        style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease;"
+                        onmouseover="this.style.background='#ef4444'; this.style.color='white';"
+                        onmouseout="this.style.background='#fef2f2'; this.style.color='#ef4444';"
+                        title="Supprimer cet utilisateur">
+                  <i class="fa-solid fa-trash"></i> Supprimer
+                </button>
+              </td>
+            `;
+            
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => {
+          console.error('Erreur chargement utilisateurs:', err);
+          alert('Erreur lors du chargement des utilisateurs');
+        });
+    }
+
+    function getInitiales(nom, prenom) {
+      const n = (nom || '').trim().charAt(0).toUpperCase();
+      const p = (prenom || '').trim().charAt(0).toUpperCase();
+      if (p && n) return p + n;
+      if (p) return p;
+      if (n) return n;
+      return 'U';
+    }
+
+    let utilisateurASupprimer = null;
+
+    function supprimerUtilisateur(idEmploye, nomComplet) {
+      utilisateurASupprimer = idEmploye;
+      
+      // Afficher la modale avec le nom de l'utilisateur
+      const messageElement = document.getElementById('messageConfirmationSuppression');
+      messageElement.innerHTML = `
+        Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>"${nomComplet}"</strong> ?
+        <br><br>
+        Cette action supprimera également toutes les données associées à cet utilisateur :
+        <ul style="margin: 12px 0 0 20px; color: #6b7280;">
+          <li>Assignations aux projets</li>
+          <li>Assignations aux tâches</li>
+          <li>Saisies de temps</li>
+        </ul>
+      `;
+      
+      // Afficher la modale
+      const modal = document.getElementById('modalConfirmationSuppression');
+      modal.style.display = 'flex';
+      modal.classList.remove('hidden');
+    }
+
+    function fermerModaleConfirmation() {
+      const modal = document.getElementById('modalConfirmationSuppression');
+      modal.style.display = 'none';
+      modal.classList.add('hidden');
+      utilisateurASupprimer = null;
+    }
+
+    function confirmerSuppressionUtilisateur() {
+      if (!utilisateurASupprimer) return;
+
+      fetch(`http://127.0.0.1:5000/api/employes/${utilisateurASupprimer}`, {
+        method: 'DELETE'
+      })
+        .then(res => res.json())
+        .then(result => {
+          fermerModaleConfirmation();
+          if (result.message) {
+            // Afficher un message de succès discret
+            const successMsg = document.createElement('div');
+            successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #22c55e; color: white; padding: 16px 24px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; font-weight: 600; display: flex; align-items: center; gap: 10px;';
+            successMsg.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${result.message}`;
+            document.body.appendChild(successMsg);
+            
+            setTimeout(() => {
+              successMsg.remove();
+            }, 3000);
+            
+            chargerUtilisateurs(); // Recharger la liste
+          }
+        })
+        .catch(err => {
+          console.error('Erreur suppression utilisateur:', err);
+          fermerModaleConfirmation();
+          
+          // Afficher un message d'erreur
+          const errorMsg = document.createElement('div');
+          errorMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 16px 24px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; font-weight: 600; display: flex; align-items: center; gap: 10px;';
+          errorMsg.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Erreur lors de la suppression`;
+          document.body.appendChild(errorMsg);
+          
+          setTimeout(() => {
+            errorMsg.remove();
+          }, 3000);
+        });
+    }
+
+    // Événements pour les boutons de la modale
+    document.getElementById('btnAnnulerSuppression').addEventListener('click', fermerModaleConfirmation);
+    document.getElementById('btnConfirmerSuppression').addEventListener('click', confirmerSuppressionUtilisateur);
+
+    // Fermer la modale en cliquant en dehors
+    document.getElementById('modalConfirmationSuppression').addEventListener('click', (e) => {
+      if (e.target.id === 'modalConfirmationSuppression') {
+        fermerModaleConfirmation();
+      }
+    });
+  </script>
+</body>
+</html>

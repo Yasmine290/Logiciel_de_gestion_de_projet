@@ -27,6 +27,7 @@
         <span>hjrfhr</span><br />
         <small>Employé</small>
       </div>
+      <button id="btnLogout" style="margin-left:16px;background:#e5e7eb;border:none;border-radius:8px;padding:6px 14px;font-weight:600;cursor:pointer;">Déconnexion</button>
     </div>
   </header>
 
@@ -34,7 +35,7 @@
   <main id="projectDetailsContainer" style="padding: 40px 60px;">
     <!-- ⚙️ Ce contenu est chargé dynamiquement par main.js -->
     <!-- Exemple : nom du projet, description, avatars, progression, tâches -->
-    <button class="btn-primary" onclick="openTacheModal()" style="margin-bottom:20px;">
+    <button class="btn-primary" id="btnAddTask" onclick="openTacheModal()" style="margin-bottom:20px;">
       <i class="fa-solid fa-plus"></i> Nouvelle tâche
     </button>
   </main>
@@ -100,11 +101,8 @@
 
         <div>
             <label>Assigné à</label>
-            <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
-            <label><input type="checkbox"> Gestionnaire (manager@example.com)</label>
-            <label><input type="checkbox"> Alice Dupont (alice@example.com)</label>
-            <label><input type="checkbox"> Bob Martin (bob@example.com)</label>
-            <label><input type="checkbox"> hjrfhr (hjrfhr@fd)</label>
+            <div id="assigneTache" style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+            <!-- Les membres seront chargés dynamiquement ici -->
             </div>
         </div>
 
@@ -115,6 +113,178 @@
         </div>
         </form>
     </div>
+    </div>
+
+    <!-- ===== MODALE MODIFICATION DE PROJET ===== -->
+    <div id="modalModifierProjet" class="modal hidden">
+      <div class="modal-content">
+        <h3 style="display:flex; align-items:center; gap:8px; font-weight:700; color:#0b0b20; margin-bottom:1.5rem;">
+          <i class="fa-solid fa-pen"></i> Modifier le Projet
+        </h3>
+
+        <form id="formModifierProjet" style="display:flex; flex-direction:column; gap:1rem;">
+          <input type="hidden" id="modifIdProjet" />
+          
+          <!-- Nom du projet -->
+          <div>
+            <label style="font-weight:600;">Nom du projet *</label>
+            <input id="modifNomProjet" type="text" placeholder="Ex: Refonte du site web" required
+              style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" />
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label style="font-weight:600;">Description</label>
+            <textarea id="modifDescProjet" placeholder="Décrivez votre projet..."
+              style="width:100%; height:70px; border:none; background:#f7f7fa; border-radius:10px; resize:none;"></textarea>
+          </div>
+
+          <!-- Dates -->
+          <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+              <label style="font-weight:600;">Date de début</label>
+              <input id="modifDateDebut" type="date"
+                style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" />
+            </div>
+            <div style="flex:1;">
+              <label style="font-weight:600;">Date de fin</label>
+              <input id="modifDateFin" type="date"
+                style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;" />
+            </div>
+          </div>
+          
+          <!-- Statut du projet -->
+          <div>
+            <label style="font-weight:600;">Statut du projet</label>
+            <select id="modifStatutProjet" style="width:100%; padding:10px; border:none; background:#f7f7fa; border-radius:10px;">
+              <option>À faire</option>
+              <option>En cours</option>
+              <option>Terminé</option>
+              <option>En retard</option>
+            </select>
+          </div>
+
+          <!-- Membres de l'équipe -->
+          <div>
+            <label style="font-weight:600;">Membres de l'équipe</label>
+            <div id="modifMembresEquipe" style="display:flex; flex-direction:column; gap:4px; margin-top:6px;">
+              <!-- Les membres seront chargés dynamiquement ici -->
+            </div>
+          </div>
+
+          <!-- Boutons -->
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+            <button type="button" onclick="closeModal('modalModifierProjet')"
+              style="background:transparent; color:#111; border:none; font-weight:600; cursor:pointer;">Annuler</button>
+            <button type="submit"
+              style="background:#0b0b20; color:white; border:none; padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer;">
+              <i class="fa-solid fa-check"></i> Enregistrer les modifications
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== MODALE MODIFICATION DE TÂCHE ===== -->
+    <div id="modalModifierTache" class="modal hidden">
+      <div class="modal-content" style="width: 520px;">
+        <h3 style="display:flex;align-items:center;gap:8px;font-weight:700;color:#0b0b20;margin-bottom:1.5rem;">
+          <i class="fa-solid fa-pen"></i> Modifier la Tâche
+        </h3>
+
+        <form id="formModifierTache" style="display:flex;flex-direction:column;gap:1rem;">
+          <input type="hidden" id="modifIdTache" />
+          
+          <div>
+            <label>Titre *</label>
+            <input id="modifTitreTache" type="text" placeholder="Ex : Créer les maquettes" required
+              style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+          </div>
+
+          <div>
+            <label>Description</label>
+            <textarea id="modifDescTache" placeholder="Décrivez la tâche..."
+              style="width:100%;height:70px;border:none;background:#f7f7fa;border-radius:10px;resize:none;"></textarea>
+          </div>
+
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;">
+              <label>Statut</label>
+              <select id="modifStatutTache" style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+                <option>À faire</option>
+                <option>En cours</option>
+                <option>En révision</option>
+                <option>Terminée</option>
+              </select>
+            </div>
+            <div style="flex:1;">
+              <label>Priorité</label>
+              <select id="modifPrioriteTache" style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+                <option>Basse</option>
+                <option>Moyenne</option>
+                <option>Haute</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;">
+              <label>Date de début</label>
+              <input id="modifDateDebutTache" type="date"
+                style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+            </div>
+            <div style="flex:1;">
+              <label>Date d'échéance</label>
+              <input id="modifDateFinTache" type="date"
+                style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+            </div>
+          </div>
+
+          <div>
+            <label>Heures estimées</label>
+            <input id="modifHeuresTache" type="number" placeholder="Ex : 8"
+              style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+          </div>
+
+          <div>
+            <label>Assigné à</label>
+            <div id="modifAssigneTache" style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+              <!-- Les membres seront chargés dynamiquement ici -->
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+            <button type="button" onclick="closeModal('modalModifierTache')" 
+              style="background:transparent;color:#111;border:none;font-weight:600;cursor:pointer;">Annuler</button>
+            <button type="submit"
+              style="background:#0b0b20;color:white;border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;">
+              <i class="fa-solid fa-check"></i> Enregistrer les modifications
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== MODALE DE CONFIRMATION DE SUPPRESSION ===== -->
+    <div id="modalConfirmation" class="modal hidden">
+      <div class="modal-content" style="width: 420px; text-align: center;">
+        <div style="margin-bottom: 20px;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: #f59e0b;"></i>
+        </div>
+        <h3 style="font-weight: 700; color: #0b0b20; margin-bottom: 10px;">Confirmation de suppression</h3>
+        <p id="confirmationMessage" style="color: #6b7280; margin-bottom: 30px;"></p>
+        
+        <div style="display: flex; justify-content: center; gap: 12px;">
+          <button onclick="closeModal('modalConfirmation')" 
+            style="background: #e5e7eb; color: #374151; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600; cursor: pointer;">
+            Annuler
+          </button>
+          <button id="btnConfirmerSuppression"
+            style="background: #ef4444; color: white; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600; cursor: pointer;">
+            Supprimer
+          </button>
+        </div>
+      </div>
     </div>
 
   <script src="assets/js/main.js"></script>

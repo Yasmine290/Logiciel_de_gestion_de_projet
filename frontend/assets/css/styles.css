@@ -194,6 +194,12 @@ header {
   color: var(--main-blue);
 }
 
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
 .nav-links button {
   background: transparent;
   border: none;
@@ -276,6 +282,12 @@ main p {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .card .icon {
@@ -379,11 +391,12 @@ main p {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
 }
 
 .modal.hidden {
@@ -501,6 +514,7 @@ main p {
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 1rem;
+  position: relative;
 }
 
 .color-dot {
@@ -508,6 +522,66 @@ main p {
   height: 14px;
   border-radius: 50%;
   margin-top: 6px;
+}
+
+/* --- Menu d'actions (3 points) --- */
+.project-menu {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+}
+
+.menu-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.menu-btn:hover {
+  background: #f3f4f6;
+  color: var(--text-dark);
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 35px;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 150px;
+  z-index: 100;
+}
+
+.menu-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.menu-dropdown button:hover {
+  background: #f3f4f6;
+}
+
+.menu-dropdown button i {
+  font-size: 1rem;
 }
 
 .project-info h3 {

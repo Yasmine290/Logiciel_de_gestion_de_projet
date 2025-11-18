@@ -18,6 +18,7 @@
       <button onclick="window.location.href='/projects'"><i class="fa-solid fa-briefcase"></i> Projets</button>
       <button class="active" onclick="window.location.href='/gantt'"><i class="fa-solid fa-chart-gantt"></i> Gantt</button>
       <button onclick="window.location.href='/time'"><i class="fa-solid fa-clock"></i> Temps</button>
+      <button id="btnUsers" onclick="window.location.href='/users'" style="display:none;"><i class="fa-solid fa-users"></i> Utilisateurs</button>
     </div>
 
     <div class="profile">
@@ -47,5 +48,15 @@
   </main>
 
   <script src="assets/js/main.js"></script>
+  <script>
+    // Afficher le bouton Utilisateurs uniquement aux admins et gestionnaires
+    window.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      const btnUsers = document.getElementById('btnUsers');
+      if (btnUsers && (user.idRole === 1 || user.idRole === 2)) {
+        btnUsers.style.display = 'block';
+      }
+    });
+  </script>
 </body>
 </html>

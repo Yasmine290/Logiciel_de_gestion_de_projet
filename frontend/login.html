@@ -39,18 +39,19 @@
     <!-- Formulaire d'inscription -->
     <form id="registerForm" class="auth-form hidden">
       <label>Nom complet</label>
-      <input type="text" placeholder="Jean Dupont" required />
+      <input id="nomRegister" type="text" placeholder="Jean Dupont" required />
 
       <label>Email</label>
-      <input type="email" placeholder="jean@entreprise.com" required />
+      <input id="emailRegister" type="email" placeholder="jean@entreprise.com" required />
 
       <label>Mot de passe</label>
-      <input type="password" placeholder="********" required />
+      <input id="mdpRegister" type="password" placeholder="********" required />
 
-      <label>Rôle</label>
-      <select>
-        <option>Employé</option>
-        <option>Gestionnaire</option>
+      <label>Type d'utilisateur</label>
+      <select id="roleRegister">
+        <option value="Employe">Employé</option>
+        <option value="Gestionnaire">Gestionnaire</option>
+        <option value="Admin">Admin</option>
       </select>
 
       <button type="submit"><i class="fa-solid fa-user-plus"></i> Créer un compte</button>
