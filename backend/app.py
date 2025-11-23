@@ -250,11 +250,46 @@ def login():
 
 @app.route('/api/temps', methods=['GET'])
 def api_temps_get():
-    # Exemple de données de temps (à remplacer par la base de données si besoin)
-    data = [
-        {"id": 1, "projet": "Projet Alpha", "date": "2025-11-12", "heures": 3.5, "commentaire": "Réunion"},
-    ]
-    return jsonify(data)
+    """Récupère les saisies de temps pour un employé (optionnel)"""
+    idEmploye = request.args.get('idEmploye')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        if idEmploye:
+            # Récupérer les temps pour un employé spécifique avec les infos du projet et de la tâche
+            cursor.execute("""
+                SELECT st.*, 
+                       t.titreTache, t.nomTache, t.heuresEstimees,
+                       p.nomProjet,
+                       DATE_FORMAT(st.dateTravail, '%Y-%m-%d') as dateTravail
+                FROM saisie_temps st
+                INNER JOIN tache t ON st.idTache = t.idTache
+                INNER JOIN projet p ON t.idProjet = p.idProjet
+                WHERE st.idEmploye = %s
+                ORDER BY st.dateTravail DESC
+            """, (idEmploye,))
+        else:
+            # Récupérer tous les temps
+            cursor.execute("""
+                SELECT st.*, 
+                       t.titreTache, t.nomTache, t.heuresEstimees,
+                       p.nomProjet,
+                       DATE_FORMAT(st.dateTravail, '%Y-%m-%d') as dateTravail
+                FROM saisie_temps st
+                INNER JOIN tache t ON st.idTache = t.idTache
+                INNER JOIN projet p ON t.idProjet = p.idProjet
+                ORDER BY st.dateTravail DESC
+            """)
+        
+        data = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return jsonify(data)
+    except Exception as e:
+        print(f"Erreur lors de la récupération des temps: {e}")
+        return jsonify([]), 500
 
 @app.route('/api/temps', methods=['POST'])
 def api_temps_post():
@@ -398,10 +433,17 @@ def ajouter_tache():
 
 @app.route('/api/taches/<int:idProjet>', methods=['GET'])
 def get_taches_by_projet(idProjet):
-    # Retourne la liste des tâches d'un projet donné
+    # Retourne la liste des tâches d'un projet donné avec les heures travaillées
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM tache WHERE idProjet = %s", (idProjet,))
+    cursor.execute("""
+        SELECT t.*, 
+               COALESCE(SUM(st.heures), 0) as heuresTravaillees
+        FROM tache t
+        LEFT JOIN saisie_temps st ON t.idTache = st.idTache
+        WHERE t.idProjet = %s
+        GROUP BY t.idTache
+    """, (idProjet,))
     data = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -633,6 +675,68 @@ def assign_tache_membres(idTache):
     except Exception as e:
         print(f"Erreur lors de l'assignation des membres à la tâche: {e}")
         return jsonify({'message': 'Erreur lors de l\'assignation des membres'}), 500
+
+@app.route('/api/employes/<int:idEmploye>/projets', methods=['GET'])
+def get_employe_projets(idEmploye):
+    """Récupère tous les projets auxquels l'employé est assigné (via les tâches)"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        cursor.execute("""
+            SELECT DISTINCT p.*
+            FROM projet p
+            INNER JOIN tache t ON p.idProjet = t.idProjet
+            INNER JOIN affectation_tache at ON t.idTache = at.idTache
+            WHERE at.idEmploye = %s
+            ORDER BY p.nomProjet
+        """, (idEmploye,))
+        
+        projets = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        return jsonify(projets), 200
+    except Exception as e:
+        print(f"Erreur lors de la récupération des projets de l'employé: {e}")
+        return jsonify([]), 500
+
+@app.route('/api/employes/<int:idEmploye>/taches', methods=['GET'])
+def get_employe_taches(idEmploye):
+    """Récupère toutes les tâches assignées à l'employé"""
+    try:
+        idProjet = request.args.get('idProjet')  # Optionnel : filtrer par projet
+        
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        if idProjet:
+            cursor.execute("""
+                SELECT t.*, p.nomProjet
+                FROM tache t
+                INNER JOIN affectation_tache at ON t.idTache = at.idTache
+                INNER JOIN projet p ON t.idProjet = p.idProjet
+                WHERE at.idEmploye = %s AND t.idProjet = %s
+                ORDER BY t.titreTache
+            """, (idEmploye, idProjet))
+        else:
+            cursor.execute("""
+                SELECT t.*, p.nomProjet
+                FROM tache t
+                INNER JOIN affectation_tache at ON t.idTache = at.idTache
+                INNER JOIN projet p ON t.idProjet = p.idProjet
+                WHERE at.idEmploye = %s
+                ORDER BY p.nomProjet, t.titreTache
+            """, (idEmploye,))
+        
+        taches = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        return jsonify(taches), 200
+    except Exception as e:
+        print(f"Erreur lors de la récupération des tâches de l'employé: {e}")
+        return jsonify([]), 500
 
 # --------------------
 # 4) Lancement Flask

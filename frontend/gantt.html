@@ -31,32 +31,378 @@
   </header>
 
   <main>
-    <h2>Diagramme de Gantt</h2>
-    <p>Visualisation chronologique des projets et tâches</p>
-
-    <div class="gantt-container">
-      <img src="assets/img/gantt-demo.png" alt="Gantt Placeholder" style="width:100%; border-radius:8px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div>
+        <h2>Diagramme de Gantt</h2>
+        <p>Visualisation chronologique des projets et tâches</p>
+      </div>
+      <select id="projetFilter" style="padding: 10px 16px; border-radius: 10px; border: 1px solid #e5e7eb; font-weight: 600; cursor: pointer; background: white;">
+        <option value="">Tous les projets</option>
+      </select>
     </div>
 
-    <div class="status-legend">
-      <span><div class="status-dot dot-gray"></div> Actif</span>
-      <span><div class="status-dot dot-yellow"></div> En attente</span>
-      <span><div class="status-dot dot-blue"></div> En cours</span>
-      <span><div class="status-dot dot-orange"></div> En révision</span>
-      <span><div class="status-dot dot-green"></div> Terminé</span>
+    <div class="gantt-wrapper" style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;">
+      <div id="ganttChart" style="min-width: 1200px;">
+        <div class="loading-spinner" style="text-align: center; padding: 60px; color: #9ca3af;">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 12px;"></i>
+          <p>Chargement du diagramme...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-legend" style="margin-top: 24px; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; padding: 16px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
+        <div style="width: 16px; height: 16px; border-radius: 4px; background: #e5e7eb;"></div> Actif
+      </span>
+      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
+        <div style="width: 16px; height: 16px; border-radius: 4px; background: #fbbf24;"></div> En attente
+      </span>
+      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
+        <div style="width: 16px; height: 16px; border-radius: 4px; background: #3b82f6;"></div> En cours
+      </span>
+      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
+        <div style="width: 16px; height: 16px; border-radius: 4px; background: #f97316;"></div> En révision
+      </span>
+      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
+        <div style="width: 16px; height: 16px; border-radius: 4px; background: #22c55e;"></div> Terminé
+      </span>
     </div>
   </main>
 
+  <!-- Scripts modulaires -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/tasks.js"></script>
+  <script src="assets/js/projects.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
-    // Afficher le bouton Utilisateurs uniquement aux admins et gestionnaires
+    let tousProjets = [];
+    let projetSelectionne = null;
+    let expandedItems = {}; // Pour tracker l'état ouvert/fermé
+
     window.addEventListener('DOMContentLoaded', () => {
       const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       const btnUsers = document.getElementById('btnUsers');
       if (btnUsers && (user.idRole === 1 || user.idRole === 2)) {
         btnUsers.style.display = 'block';
       }
+
+      // Afficher les infos utilisateur
+      const profileDiv = document.querySelector('.profile');
+      if (profileDiv && user) {
+        const avatar = profileDiv.querySelector('.avatar');
+        if (avatar && user.prenomEmploye) avatar.textContent = user.prenomEmploye[0].toUpperCase();
+        const nameSpan = profileDiv.querySelector('span');
+        if (nameSpan) nameSpan.textContent = user.prenomEmploye || user.nomEmploye || 'Utilisateur';
+        const small = profileDiv.querySelector('small');
+        if (small && user.idRole) {
+          let roleTxt = 'Employé';
+          if (user.idRole === 1) roleTxt = 'Administrateur';
+          else if (user.idRole === 2) roleTxt = 'Gestionnaire';
+          small.textContent = roleTxt;
+        }
+      }
+
+      chargerGantt();
+
+      // Événement changement de filtre
+      document.getElementById('projetFilter').addEventListener('change', (e) => {
+        projetSelectionne = e.target.value ? parseInt(e.target.value) : null;
+        renderGantt();
+      });
     });
+
+    function chargerGantt() {
+      console.log('Chargement du Gantt...');
+      console.log('API_BASE:', API_BASE);
+      
+      fetch(`${API_BASE}/projets`)
+        .then(res => {
+          console.log('Réponse projets:', res);
+          return res.json();
+        })
+        .then(projets => {
+          console.log('Projets reçus:', projets);
+          tousProjets = [];
+          
+          if (!projets || projets.length === 0) {
+            document.getElementById('ganttChart').innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px;">Aucun projet à afficher</p>';
+            return;
+          }
+          
+          // Charger les tâches pour chaque projet
+          const promesses = projets.map(projet => {
+            return fetch(`${API_BASE}/taches/${projet.idProjet}`)
+              .then(res => res.json())
+              .then(taches => {
+                console.log(`Tâches pour projet ${projet.idProjet}:`, taches);
+                return { ...projet, taches: taches || [] };
+              })
+              .catch(err => {
+                console.error(`Erreur tâches projet ${projet.idProjet}:`, err);
+                return { ...projet, taches: [] };
+              });
+          });
+
+          return Promise.all(promesses);
+        })
+        .then(projetsAvecTaches => {
+          console.log('Tous les projets avec tâches:', projetsAvecTaches);
+          tousProjets = projetsAvecTaches;
+          
+          // Remplir le select
+          const select = document.getElementById('projetFilter');
+          select.innerHTML = '<option value="">Tous les projets</option>';
+          projetsAvecTaches.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.idProjet;
+            option.textContent = p.nomProjet;
+            select.appendChild(option);
+          });
+
+          renderGantt();
+        })
+        .catch(err => {
+          console.error('Erreur chargement Gantt:', err);
+          document.getElementById('ganttChart').innerHTML = `<p style="text-align:center;color:#ef4444;padding:40px;">Erreur lors du chargement des données<br><small>${err.message}</small></p>`;
+        });
+    }
+
+    function renderGantt() {
+      const container = document.getElementById('ganttChart');
+      
+      // Filtrer les projets
+      const projetsAffiches = projetSelectionne 
+        ? tousProjets.filter(p => p.idProjet === projetSelectionne)
+        : tousProjets;
+
+      if (projetsAffiches.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px;">Aucun projet à afficher</p>';
+        return;
+      }
+
+      // Calculer la plage de dates globale
+      let dateMin = null, dateMax = null;
+      
+      projetsAffiches.forEach(projet => {
+        if (projet.dateDebut) {
+          const d = new Date(projet.dateDebut);
+          if (!dateMin || d < dateMin) dateMin = d;
+        }
+        if (projet.dateFin) {
+          const d = new Date(projet.dateFin);
+          if (!dateMax || d > dateMax) dateMax = d;
+        }
+        
+        projet.taches.forEach(tache => {
+          if (tache.dateDebutTache) {
+            const d = new Date(tache.dateDebutTache);
+            if (!dateMin || d < dateMin) dateMin = d;
+          }
+          if (tache.dateFinTache) {
+            const d = new Date(tache.dateFinTache);
+            if (!dateMax || d > dateMax) dateMax = d;
+          }
+        });
+      });
+
+      // Ajouter une marge
+      if (!dateMin) dateMin = new Date();
+      if (!dateMax) dateMax = new Date(dateMin.getTime() + 90 * 24 * 60 * 60 * 1000);
+      
+      dateMin = new Date(dateMin.getFullYear(), dateMin.getMonth(), 1);
+      dateMax = new Date(dateMax.getFullYear(), dateMax.getMonth() + 1, 0);
+
+      // Générer les mois pour l'en-tête
+      const mois = [];
+      const currentDate = new Date(dateMin);
+      while (currentDate <= dateMax) {
+        mois.push({
+          mois: currentDate.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }),
+          date: new Date(currentDate)
+        });
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+
+      // Construire le HTML
+      let html = `
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: white;">
+              <th style="text-align: left; padding: 14px 16px; font-weight: 600; color: #1f2937; font-size: 0.95rem; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; min-width: 280px; position: sticky; left: 0; background: white; z-index: 10;">Nom</th>
+              ${mois.map((m, i) => `<th style="text-align: center; padding: 14px 12px; font-weight: 600; color: #1f2937; font-size: 0.9rem; border-bottom: 1px solid #e5e7eb; ${i < mois.length - 1 ? 'border-right: 1px solid #e5e7eb;' : ''} min-width: 140px; background: white;"><i class="fa-regular fa-calendar" style="margin-right: 6px; color: #9ca3af;"></i>${m.mois}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // Pour chaque projet
+      projetsAffiches.forEach((projet, idx) => {
+        const projetKey = `projet-${projet.idProjet}`;
+        const projetExpanded = expandedItems[projetKey] !== false; // Par défaut ouvert
+        
+        // Ligne du projet
+        html += renderGanttRow(projet.nomProjet, projet.dateDebut, projet.dateFin, dateMin, dateMax, mois, projet.color || '#3b82f6', 0, true, projetKey, projetExpanded, null, projet.taches.length > 0, projet);
+        
+        if (projetExpanded) {
+          // Tâches principales (sans parent)
+          const tachesPrincipales = projet.taches.filter(t => !t.idTacheParent);
+          tachesPrincipales.forEach(tache => {
+            const tacheKey = `tache-${tache.idTache}`;
+            const sousTaches = projet.taches.filter(t => t.idTacheParent === tache.idTache);
+            const tacheExpanded = expandedItems[tacheKey] !== false; // Par défaut ouvert
+            const hasSousTaches = sousTaches.length > 0;
+            
+            html += renderGanttRow(tache.titreTache, tache.dateDebutTache, tache.dateFinTache, dateMin, dateMax, mois, getStatusColor(tache.statutTache), 1, false, tacheKey, tacheExpanded, tache, hasSousTaches, null);
+            
+            // Sous-tâches
+            if (tacheExpanded && hasSousTaches) {
+              sousTaches.forEach(st => {
+                html += renderGanttRow(st.titreTache, st.dateDebutTache, st.dateFinTache, dateMin, dateMax, mois, getStatusColor(st.statutTache), 2, false, null, false, st, false, null);
+              });
+            }
+          });
+        }
+      });
+
+      html += `
+          </tbody>
+        </table>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function renderGanttRow(nom, dateDebut, dateFin, dateMin, dateMax, mois, couleur, niveau, isProjet, itemKey, expanded, tache, hasChildren, projet) {
+      const indent = niveau * 24;
+      let expandIcon = '';
+      
+      if (hasChildren && itemKey) {
+        expandIcon = expanded 
+          ? '<i class="fa-solid fa-chevron-down" style="cursor: pointer; font-size: 0.8rem;"></i>' 
+          : '<i class="fa-solid fa-chevron-right" style="cursor: pointer; font-size: 0.8rem;"></i>';
+      }
+      
+      const clickHandler = hasChildren && itemKey ? `onclick="toggleExpand('${itemKey}')" style="cursor: pointer;"` : '';
+      
+      // Calculer la progression
+      let progression = 0;
+      if (isProjet && projet) {
+        // Si le projet est terminé, toujours 100%
+        if (projet.statutProjet === 'Terminé') {
+          progression = 100;
+        } else {
+          // Pour un projet en cours, calculer la progression basée sur les heures ou les tâches
+          const tachesPrincipales = projet.taches.filter(t => !t.idTacheParent);
+          const totalTaches = tachesPrincipales.length;
+          
+          // Calculer d'abord avec les heures
+          const totalHeuresEstimees = tachesPrincipales.reduce((sum, t) => sum + (parseFloat(t.heuresEstimees) || 0), 0);
+          const totalHeuresTravaillees = tachesPrincipales.reduce((sum, t) => sum + (parseFloat(t.heuresTravaillees) || 0), 0);
+          
+          if (totalHeuresEstimees > 0 && totalHeuresTravaillees > 0) {
+            // Progression basée sur les heures (ne peut pas dépasser 100%)
+            progression = Math.min(Math.round((totalHeuresTravaillees / totalHeuresEstimees) * 100), 100);
+          } else {
+            // Sinon, basé sur le nombre de tâches terminées
+            const tachesTerminees = tachesPrincipales.filter(t => t.statutTache === 'Terminée' || t.statutTache === 'Terminé').length;
+            progression = totalTaches > 0 ? Math.round((tachesTerminees / totalTaches) * 100) : 0;
+          }
+        }
+      } else if (tache) {
+        // Pour une tâche, basé sur les heures ou le statut
+        const heuresEstimees = parseFloat(tache.heuresEstimees) || 0;
+        const heuresTravaillees = parseFloat(tache.heuresTravaillees) || 0;
+        
+        if (heuresEstimees > 0 && heuresTravaillees > 0) {
+          // Progression basée sur les heures (ne peut pas dépasser 100%)
+          progression = Math.min(Math.round((heuresTravaillees / heuresEstimees) * 100), 100);
+        } else {
+          // Sinon, basé sur le statut
+          if (tache.statutTache === 'Terminée' || tache.statutTache === 'Terminé') {
+            progression = 100;
+          } else if (tache.statutTache === 'En cours') {
+            progression = 50;
+          } else if (tache.statutTache === 'En révision') {
+            progression = 75;
+          } else if (tache.statutTache === 'En attente' || tache.statutTache === 'À faire') {
+            progression = 10;
+          }
+        }
+      }
+      
+      // Si progression = 100%, utiliser la couleur verte "Terminé"
+      let couleurFinale = couleur;
+      if (progression === 100) {
+        couleurFinale = '#22c55e'; // Vert pour terminé
+      }
+      
+      // Construire les cellules de mois avec séparations verticales
+      let cellules = '';
+      
+      if (dateDebut && dateFin) {
+        const debut = new Date(dateDebut);
+        const fin = new Date(dateFin);
+        const totalJours = (dateMax - dateMin) / (1000 * 60 * 60 * 24);
+        const joursDebut = (debut - dateMin) / (1000 * 60 * 60 * 24);
+        const joursFin = (fin - debut) / (1000 * 60 * 60 * 24);
+        
+        const leftPercent = (joursDebut / totalJours) * 100;
+        const widthPercent = (joursFin / totalJours) * 100;
+        
+        const statusLabel = tache ? tache.statutTache : '';
+        const title = `${nom}\nDébut: ${debut.toLocaleDateString('fr-FR')}\nFin: ${fin.toLocaleDateString('fr-FR')}${statusLabel ? '\nStatut: ' + statusLabel : ''}\nProgression: ${progression}%`;
+        
+        // Couleur plus claire pour la partie non terminée
+        const couleurFond = couleurFinale + '40'; // Ajouter transparence
+        
+        // Créer une cellule fusionnée pour toute la zone de calendrier
+        cellules = `
+          <td colspan="${mois.length}" style="position: relative; padding: 0; height: ${isProjet ? '48px' : '42px'};">
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex;">
+              ${mois.map((m, i) => `<div style="flex: 1; border-right: ${i < mois.length - 1 ? '1px solid #e5e7eb' : 'none'}; background: ${i % 2 === 0 ? 'white' : '#fafafa'};"></div>`).join('')}
+            </div>
+            <div style="position: absolute; top: 50%; transform: translateY(-50%); left: ${leftPercent}%; width: ${widthPercent}%; height: ${isProjet ? '28px' : '20px'}; background: ${couleurFond}; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); z-index: 1; overflow: hidden;" title="${title}">
+              <div style="position: absolute; top: 0; left: 0; height: 100%; width: ${progression}%; background: ${couleurFinale}; border-radius: 4px; transition: width 0.3s ease;"></div>
+            </div>
+          </td>
+        `;
+      } else {
+        // Pas de dates, créer des cellules vides avec séparations
+        cellules = mois.map((m, i) => `<td style="padding: 0; height: ${isProjet ? '48px' : '42px'}; ${i < mois.length - 1 ? 'border-right: 1px solid #e5e7eb;' : ''} background: ${i % 2 === 0 ? 'white' : '#fafafa'};"></td>`).join('');
+      }
+      
+      return `
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+          <td ${clickHandler} style="padding: 14px 16px; font-weight: ${isProjet ? '600' : '500'}; color: ${isProjet ? '#0b0b20' : '#374151'}; font-size: ${isProjet ? '0.95rem' : '0.9rem'}; position: sticky; left: 0; background: white; z-index: 5; border-right: 1px solid #e5e7eb; white-space: nowrap;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-left: ${indent}px;">
+              ${expandIcon ? `<span style="width: 14px; color: #6b7280; display: flex; align-items: center;">${expandIcon}</span>` : (niveau > 0 ? '<span style="width: 14px;"></span>' : '')}
+              ${isProjet ? `<div style="width: 10px; height: 10px; border-radius: 50%; background: ${couleur}; flex-shrink: 0;"></div>` : ''}
+              <span>${nom}</span>
+            </div>
+          </td>
+          ${cellules}
+        </tr>
+      `;
+    }
+
+    function toggleExpand(itemKey) {
+      expandedItems[itemKey] = !expandedItems[itemKey];
+      renderGantt();
+    }
+
+    function getStatusColor(statut) {
+      const colors = {
+        'Actif': '#e5e7eb',
+        'À faire': '#fbbf24',
+        'En attente': '#fbbf24',
+        'En cours': '#3b82f6',
+        'En révision': '#f97316',
+        'Terminé': '#22c55e',
+        'Terminée': '#22c55e'
+      };
+      return colors[statut] || '#e5e7eb';
+    }
   </script>
 </body>
 </html>

@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Base de données
+*.sql~ 
+backups/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Fichiers temporaires
+*.tmp
+*.bak
+GUIDE_ASSIGNATIONS.md
+MODIFICATIONS_ASSIGNATIONS.md
