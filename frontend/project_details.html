@@ -33,37 +33,35 @@
 
   <!-- ========================= CONTENU PRINCIPAL ========================= -->
   <main id="projectDetailsContainer" style="padding: 40px 60px;">
-    <!-- ⚙️ Ce contenu est chargé dynamiquement par main.js -->
-    <!-- Exemple : nom du projet, description, avatars, progression, tâches -->
-    <button class="btn-primary" id="btnAddTask" onclick="openTacheModal()" style="margin-bottom:20px;">
-      <i class="fa-solid fa-plus"></i> Nouvelle tâche
-    </button>
+      <!-- ⚙️ Ce contenu est chargé dynamiquement par main.js -->
+      <!-- Exemple : nom du projet, description, avatars, progression, tâches -->
+      <button class="btn-primary btn-add-task" id="btnAddTask" onclick="openTacheModal()">
+        <i class="fa-solid fa-plus"></i> Nouvelle tâche
+      </button>
   </main>
     <!-- Bouton existant corrigé pour ouvrir la modale -->
     <!-- ==================== MODALE AJOUT DE TÂCHE ==================== -->
     <div id="modalTache" class="modal hidden">
-    <div class="modal-content" style="width: 520px;">
-  <h3 style="display:flex;align-items:center;gap:8px;font-weight:700;color:#0b0b20;margin-bottom:1.5rem;">
+    <div class="modal-content custom-width">
+  <h3 class="modal-title">
   <i class="fa-solid fa-list-check"></i> <span style="cursor:pointer;" onclick="openTacheModal()">Nouvelle Tâche</span>
   </h3>
 
-        <form id="formTache" style="display:flex;flex-direction:column;gap:1rem;">
+  <form id="formTache">
         <div>
             <label>Titre *</label>
-            <input id="titreTache" type="text" placeholder="Ex : Créer les maquettes" required
-            style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+            <input id="titreTache" type="text" placeholder="Ex : Créer les maquettes" required class="input-full">
         </div>
 
         <div>
             <label>Description</label>
-            <textarea id="descTache" placeholder="Décrivez la tâche..."
-            style="width:100%;height:70px;border:none;background:#f7f7fa;border-radius:10px;resize:none;"></textarea>
+            <textarea id="descTache" placeholder="Décrivez la tâche..." class="textarea-full"></textarea>
         </div>
 
-        <div style="display:flex;gap:10px;">
+  <div class="form-row">
             <div style="flex:1;">
       <label>Statut</label>
-      <select id="statutTache" style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+  <select id="statutTache" class="input-full">
         <option>À faire</option>
         <option>En cours</option>
         <option>En révision</option>
@@ -72,7 +70,7 @@
             </div>
             <div style="flex:1;">
             <label>Priorité</label>
-            <select id="prioriteTache" style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+            <select id="prioriteTache" class="input-full">
                 <option>Moyenne</option>
                 <option>Basse</option>
                 <option>Haute</option>
@@ -80,36 +78,32 @@
             </div>
         </div>
 
-        <div style="display:flex;gap:10px;">
+  <div class="form-row">
             <div style="flex:1;">
             <label>Date de début</label>
-            <input id="dateDebutTache" type="date"
-                style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+      <input id="dateDebutTache" type="date" class="input-full">
             </div>
             <div style="flex:1;">
             <label>Date d’échéance</label>
-            <input id="dateFinTache" type="date"
-                style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+      <input id="dateFinTache" type="date" class="input-full">
             </div>
         </div>
 
         <div>
             <label>Heures estimées</label>
-            <input id="heuresTache" type="number" placeholder="Ex : 8"
-            style="width:100%;padding:10px;border:none;background:#f7f7fa;border-radius:10px;">
+            <input id="heuresTache" type="number" placeholder="Ex : 8" class="input-full">
         </div>
 
         <div>
             <label>Assigné à</label>
-            <div id="assigneTache" style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+            <div id="assigneTache" class="assigne-tache">
             <!-- Les membres seront chargés dynamiquement ici -->
             </div>
         </div>
 
-        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
-            <button type="button" onclick="closeModal('modalTache')" 
-            style="background:transparent;color:#111;border:none;font-weight:600;cursor:pointer;">Annuler</button>
-            <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Créer la tâche</button>
+    <div class="form-actions">
+      <button type="button" onclick="closeModal('modalTache')" class="btn-cancel">Annuler</button>
+      <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Créer la tâche</button>
         </div>
         </form>
     </div>
@@ -288,11 +282,11 @@
     </div>
 
   <!-- Scripts modulaires -->
+  <script src="assets/js/main.js"></script>
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/tasks.js"></script>
   <script src="assets/js/projects.js"></script>
   <script src="assets/js/project-details.js"></script>
-  <script src="assets/js/main.js"></script>
 </body>
 </html>

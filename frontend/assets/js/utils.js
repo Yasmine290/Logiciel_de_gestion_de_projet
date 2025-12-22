@@ -16,6 +16,33 @@ function formatDate(date) {
 }
 
 /**
+ * Génère une couleur cohérente basée sur un ID (pour éviter les changements aléatoires)
+ * @param {number} id - ID du projet/élément
+ * @returns {string} Couleur hex (#RRGGBB)
+ */
+function getProjectColor(id) {
+    // Palette de couleurs prédéfinies professionnelles
+    const colors = [
+        '#3b82f6', // Bleu
+        '#8b5cf6', // Violet
+        '#ec4899', // Rose
+        '#f59e0b', // Orange
+        '#10b981', // Vert
+        '#06b6d4', // Cyan
+        '#6366f1', // Indigo
+        '#84cc16', // Lime
+        '#f97316', // Orange foncé
+        '#14b8a6', // Teal
+        '#a855f7', // Violet clair
+        '#22c55e'  // Vert clair
+    ];
+    
+    // Utiliser l'ID pour sélectionner une couleur de manière cohérente
+    return colors[id % colors.length];
+}
+
+/**
+ * @deprecated Utiliser getProjectColor(id) à la place pour une cohérence
  * Génère une couleur aléatoire en hexadécimal
  * @returns {string} Couleur hex (#RRGGBB)
  */
@@ -63,33 +90,6 @@ function closeModal(id) {
         modal.style.opacity = '0';
         setTimeout(() => modal.style.display = 'none', 300);
     }
-}
-
-/**
- * Calcule la progression d'un projet ou d'une tâche
- * @param {Object} item - Objet projet ou tâche
- * @returns {number} Pourcentage de progression (0-100)
- */
-function calculerProgression(item) {
-    // Si le statut est "Terminé", retourner 100%
-    if (item.statutProjet === 'Terminé' || item.statutTache === 'Terminé') {
-        return 100;
-    }
-
-    // Calcul basé sur les heures travaillées vs estimées
-    const heuresTravaillees = parseFloat(item.heuresTravaillees) || 0;
-    const heuresEstimees = parseFloat(item.heuresEstimees) || parseFloat(item.heuresAllouees) || 1;
-    
-    if (heuresEstimees > 0) {
-        return Math.min(Math.round((heuresTravaillees / heuresEstimees) * 100), 100);
-    }
-
-    // Fallback sur le statut si pas d'heures
-    if (item.statutProjet === 'En cours' || item.statutTache === 'En cours') {
-        return 50;
-    }
-    
-    return 0;
 }
 
 /**

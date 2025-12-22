@@ -3,13 +3,17 @@
 // ===========================================================
 
 // Configuration de l'API
-const API_BASE = "http://127.0.0.1:5000/api";
+// Pour accès distant via ngrok, utilisez l'URL ngrok
+// Pour accès local, utilisez: "http://127.0.0.1:5000/api"
+const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" 
+    ? "http://127.0.0.1:5000/api"
+    : `${window.location.protocol}//${window.location.host}/api`;
 
 // Vérification de la connexion au backend
 fetch(`${API_BASE}/test`)
     .then(res => res.json())
-    .then(data => console.log("✅ Backend connecté :", data.message))
-    .catch(err => console.error("❌ Erreur de connexion :", err));
+    .then(data => console.log(" Backend connecté :", data.message))
+    .catch(err => console.error(" Erreur de connexion :", err));
 
 
 // ===========================================================

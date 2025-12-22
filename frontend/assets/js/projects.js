@@ -83,7 +83,7 @@ function chargerProjets() {
                     <div class="no-project">
                         <i class="fa-solid fa-clipboard-list icon"></i>
                         <p>Aucun projet pour le moment</p>
-                        <button class="btn-primary" onclick="openModal('modalProjet')">
+                        <button class="btn-primary" onclick="openModalNouveauProjet()">
                             <i class="fa-solid fa-plus"></i> Créer mon premier projet
                         </button>
                     </div>`;
@@ -94,53 +94,18 @@ function chargerProjets() {
             const userAccess = JSON.parse(sessionStorage.getItem('user') || '{}');
             const canManage = userAccess.idRole === 1 || userAccess.idRole === 2; // Admin ou Gestionnaire
 
-            // Pour chaque projet, calculer la progression
-            const promessesCartes = data.map(p => {
-                return chargerTaches(p.idProjet).then(taches => {
-                    const progression = calculerProgressionProjet(p, taches);
-                    return { ...p, progression };
-                });
-            });
-
-            Promise.all(promessesCartes).then((projetsAvecProgression) => {
-                projetsAvecProgression.forEach(p => {
-                    const card = creerCarteProjet(p, canManage);
-                    liste.appendChild(card);
-                    chargerMembresProjet(p.idProjet);
-                    card.addEventListener("click", () => afficherDetailsProjet(p.idProjet));
-                });
+            // Utiliser la progression calculée par le backend (déjà récursive)
+            data.forEach(p => {
+                // Récupérer la progression depuis le backend
+                p.progression = Math.round(parseFloat(p.progressionProjet) || 0);
+                
+                const card = creerCarteProjet(p, canManage);
+                liste.appendChild(card);
+                chargerMembresProjet(p.idProjet);
+                card.addEventListener("click", () => afficherDetailsProjet(p.idProjet));
             });
         })
         .catch(err => console.error("Erreur chargement projets :", err));
-}
-
-/**
- * Calcule la progression d'un projet
- * @param {Object} projet - Objet projet
- * @param {Array} taches - Liste des tâches du projet
- * @returns {number} Pourcentage de progression
- */
-function calculerProgressionProjet(projet, taches) {
-    // Si le projet est terminé, toujours 100%
-    if (projet.statutProjet === 'Terminé') {
-        return 100;
-    }
-
-    const tachesPrincipales = taches.filter(t => !t.idTacheParent);
-    const totalTaches = tachesPrincipales.length;
-    
-    // Calculer d'abord avec les heures
-    const totalHeuresEstimees = tachesPrincipales.reduce((sum, t) => sum + (parseFloat(t.heuresEstimees) || 0), 0);
-    const totalHeuresTravaillees = tachesPrincipales.reduce((sum, t) => sum + (parseFloat(t.heuresTravaillees) || 0), 0);
-    
-    if (totalHeuresEstimees > 0 && totalHeuresTravaillees > 0) {
-        // Progression basée sur les heures (ne peut pas dépasser 100%)
-        return Math.min(Math.round((totalHeuresTravaillees / totalHeuresEstimees) * 100), 100);
-    }
-    
-    // Sinon, basé sur le nombre de tâches terminées
-    const tachesTerminees = tachesPrincipales.filter(t => t.statutTache === 'Terminée').length;
-    return totalTaches > 0 ? Math.round((tachesTerminees / totalTaches) * 100) : 0;
 }
 
 /**
@@ -154,7 +119,8 @@ function creerCarteProjet(p, canManage) {
     card.className = 'project-card';
     card.style.position = 'relative';
 
-    const color = p.color || getRandomColor();
+    // Utiliser une couleur cohérente basée sur l'ID du projet
+    const color = p.color || getProjectColor(p.idProjet);
 
     card.innerHTML = `
         <div class="project-header">
@@ -276,21 +242,15 @@ function filtrerProjets(filtre, projetsAnalyses) {
                     return;
                 }
                 
-                // Calculer la progression pour chaque projet filtré
-                const promessesProgressions = projetsFiltres.map(({ projet: p }) => {
-                    return chargerTaches(p.idProjet).then(taches => {
-                        const progression = calculerProgressionProjet(p, taches);
-                        return { ...p, progression };
-                    });
-                });
-                
-                Promise.all(promessesProgressions).then(projetsAvecProgression => {
-                    projetsAvecProgression.forEach(p => {
-                        const card = creerCarteProjet(p, canManage);
-                        liste.appendChild(card);
-                        chargerMembresProjet(p.idProjet);
-                        card.addEventListener("click", () => afficherDetailsProjet(p.idProjet));
-                    });
+                // Utiliser la progression calculée par le backend (déjà récursive)
+                projetsFiltres.forEach(({ projet: p }) => {
+                    // Récupérer la progression depuis le backend
+                    p.progression = Math.round(parseFloat(p.progressionProjet) || 0);
+                    
+                    const card = creerCarteProjet(p, canManage);
+                    liste.appendChild(card);
+                    chargerMembresProjet(p.idProjet);
+                    card.addEventListener("click", () => afficherDetailsProjet(p.idProjet));
                 });
             });
         })
@@ -371,6 +331,25 @@ function chargerMembresProjetDetails(idProjet) {
             });
         })
         .catch(err => console.error('Erreur chargement membres projet détails:', err));
+}
+
+/**
+ * Ouvre la modale de création d'un nouveau projet avec tous les champs vides
+ */
+function openModalNouveauProjet() {
+    // Réinitialiser tous les champs du formulaire
+    document.getElementById('nomProjet').value = '';
+    document.getElementById('descProjet').value = '';
+    document.getElementById('dateDebut').value = '';
+    document.getElementById('dateFin').value = '';
+    document.getElementById('statutProjet').value = 'À faire';
+    
+    // Décocher toutes les cases des membres
+    const checkboxes = document.querySelectorAll('#membresEquipe input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    
+    // Ouvrir la modale
+    openModal('modalProjet');
 }
 
 /**
@@ -546,6 +525,7 @@ function supprimerProjet(idProjet) {
     // Fermer tous les menus déroulants
     document.querySelectorAll('.menu-dropdown').forEach(m => m.style.display = 'none');
     
+    console.log('supprimerProjet appelé avec idProjet:', idProjet, 'type:', typeof idProjet);
     projetASupprimer = idProjet;
     document.getElementById('confirmationMessage').textContent = 'Êtes-vous sûr de vouloir supprimer ce projet ?';
     openModal('modalConfirmation');
@@ -560,6 +540,9 @@ function supprimerProjet(idProjet) {
  */
 function confirmerSuppression() {
     if (!projetASupprimer) return;
+    
+    console.log('confirmerSuppression - projetASupprimer:', projetASupprimer, 'type:', typeof projetASupprimer);
+    console.log('URL complète:', `${API_BASE}/projets/${projetASupprimer}`);
     
     fetch(`${API_BASE}/projets/${projetASupprimer}`, {
         method: 'DELETE'

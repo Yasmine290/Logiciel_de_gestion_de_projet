@@ -27,7 +27,7 @@
         <span id="userName">Utilisateur</span><br />
         <small id="userRole">Admin</small>
       </div>
-      <button id="btnLogout" style="margin-left:16px;background:#e5e7eb;border:none;border-radius:8px;padding:6px 14px;font-weight:600;cursor:pointer;">Déconnexion</button>
+      <button id="btnLogout" class="btn-logout">Déconnexion</button>
     </div>
   </header>
 
@@ -37,23 +37,23 @@
 
     <!-- Statistiques des rôles -->
     <div class="stats-cards">
-      <div class="card" style="cursor: pointer; user-select: none;" title="Cliquez pour filtrer les administrateurs">
+      <div class="card card-clickable" title="Cliquez pour filtrer les administrateurs">
         <div>
           <strong id="countAdmins">0</strong>
           <span>Administrateurs</span>
         </div>
-        <div class="icon" style="background:#ef4444;"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="icon icon-red"><i class="fa-solid fa-shield-halved"></i></div>
       </div>
 
-      <div class="card" style="cursor: pointer; user-select: none;" title="Cliquez pour filtrer les gestionnaires">
+      <div class="card card-clickable" title="Cliquez pour filtrer les gestionnaires">
         <div>
           <strong id="countGestionnaires">0</strong>
           <span>Gestionnaires</span>
         </div>
-        <div class="icon" style="background:#3b82f6;"><i class="fa-solid fa-user-tie"></i></div>
+        <div class="icon icon-blue"><i class="fa-solid fa-user-tie"></i></div>
       </div>
 
-      <div class="card" style="cursor: pointer; user-select: none;" title="Cliquez pour filtrer les employés">
+      <div class="card card-clickable" title="Cliquez pour filtrer les employés">
         <div>
           <strong id="countEmployes">0</strong>
           <span>Employés</span>
@@ -63,14 +63,14 @@
     </div>
 
     <!-- Tableau des utilisateurs -->
-    <div class="users-table-container" style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-      <table class="users-table" style="width: 100%; border-collapse: collapse;">
+    <div class="users-table-container">
+      <table class="users-table">
         <thead>
-          <tr style="border-bottom: 2px solid #e5e7eb;">
-            <th style="text-align: left; padding: 16px; font-weight: 600; color: #374151; font-size: 0.95rem;">Utilisateur</th>
-            <th style="text-align: left; padding: 16px; font-weight: 600; color: #374151; font-size: 0.95rem;">Email</th>
-            <th style="text-align: left; padding: 16px; font-weight: 600; color: #374151; font-size: 0.95rem;">Rôle</th>
-            <th style="text-align: center; padding: 16px; font-weight: 600; color: #374151; font-size: 0.95rem;">Actions</th>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th class="text-center">Actions</th>
           </tr>
         </thead>
         <tbody id="usersTableBody">
@@ -80,63 +80,63 @@
     </div>
 
     <!-- Description des rôles -->
-    <h3 style="color: #0b0b20; font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Description des rôles</h3>
+    <h3 class="roles-title">Description des rôles</h3>
     
-    <div style="display: flex; flex-direction: column; gap: 12px;">
-      <div style="background: white; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: flex-start; gap: 14px;">
-        <div style="background: #fef2f2; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <i class="fa-solid fa-shield-halved" style="font-size: 1.3rem; color: #ef4444;"></i>
+    <div class="roles-container">
+      <div class="role-card">
+        <div class="role-icon role-icon-red">
+          <i class="fa-solid fa-shield-halved"></i>
         </div>
         <div>
-          <h4 style="color: #111827; font-weight: 600; margin-bottom: 4px; font-size: 0.95rem;">Administrateur</h4>
-          <p style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Accès complet à toutes les fonctionnalités du système</p>
+          <h4 class="role-card-title">Administrateur</h4>
+          <p class="role-card-desc">Accès complet à toutes les fonctionnalités du système</p>
         </div>
       </div>
 
-      <div style="background: white; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: flex-start; gap: 14px;">
-        <div style="background: #eff6ff; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <i class="fa-solid fa-user-tie" style="font-size: 1.3rem; color: #3b82f6;"></i>
+      <div class="role-card">
+        <div class="role-icon role-icon-blue">
+          <i class="fa-solid fa-user-tie"></i>
         </div>
         <div>
-          <h4 style="color: #111827; font-weight: 600; margin-bottom: 4px; font-size: 0.95rem;">Gestionnaire de projet</h4>
-          <p style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Accès complet sur ses projets (créateur), accès en lecture sur les autres projets</p>
+          <h4 class="role-card-title">Gestionnaire de projet</h4>
+          <p class="role-card-desc">Accès complet sur ses projets (créateur), accès en lecture sur les autres projets</p>
         </div>
       </div>
 
-      <div style="background: white; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: flex-start; gap: 14px;">
-        <div style="background: #f0fdf4; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <i class="fa-solid fa-users" style="font-size: 1.3rem; color: #22c55e;"></i>
+      <div class="role-card">
+        <div class="role-icon role-icon-green">
+          <i class="fa-solid fa-users"></i>
         </div>
         <div>
-          <h4 style="color: #111827; font-weight: 600; margin-bottom: 4px; font-size: 0.95rem;">Employé</h4>
-          <p style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Accès en lecture sur les tâches assignées, peut voir les heures estimées et utilisées</p>
+          <h4 class="role-card-title">Employé</h4>
+          <p class="role-card-desc">Accès en lecture sur les tâches assignées, peut voir les heures estimées et utilisées</p>
         </div>
       </div>
     </div>
   </main>
 
   <!-- Modale de confirmation de suppression -->
-  <div id="modalConfirmationSuppression" class="modal hidden" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
-    <div class="modal-content" style="background: white; border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);">
-      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
-        <div style="width: 48px; height: 48px; border-radius: 50%; background: #fef2f2; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.5rem; color: #ef4444;"></i>
+  <div id="modalConfirmationSuppression" class="modal modal-delete hidden">
+    <div class="modal-content modal-delete-content">
+      <div class="modal-delete-header">
+        <div class="modal-delete-icon">
+          <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
         <div>
-          <h3 style="color: #111827; font-weight: 700; font-size: 1.2rem; margin-bottom: 4px;">Confirmer la suppression</h3>
-          <p style="color: #6b7280; font-size: 0.95rem; margin: 0;">Cette action est irréversible</p>
+          <h3 class="modal-delete-title">Confirmer la suppression</h3>
+          <p class="modal-delete-subtitle">Cette action est irréversible</p>
         </div>
       </div>
       
-      <p id="messageConfirmationSuppression" style="color: #374151; font-size: 1rem; line-height: 1.6; margin-bottom: 24px; padding: 16px; background: #f9fafb; border-radius: 10px; border-left: 3px solid #ef4444;">
+      <p id="messageConfirmationSuppression" class="modal-delete-message">
         <!-- Le message sera inséré ici dynamiquement -->
       </p>
 
-      <div style="display: flex; gap: 12px; justify-content: flex-end;">
-        <button id="btnAnnulerSuppression" style="background: #f3f4f6; color: #374151; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: all 0.2s;">
+      <div class="modal-delete-actions">
+        <button id="btnAnnulerSuppression" class="btn-modal-cancel">
           <i class="fa-solid fa-xmark"></i> Annuler
         </button>
-        <button id="btnConfirmerSuppression" style="background: #ef4444; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: all 0.2s;">
+        <button id="btnConfirmerSuppression" class="btn-modal-delete">
           <i class="fa-solid fa-trash"></i> Supprimer
         </button>
       </div>
@@ -144,13 +144,17 @@
   </div>
 
   <!-- Scripts modulaires -->
+  <script src="assets/js/main.js"></script>
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/auth.js"></script>
-  <script src="assets/js/main.js"></script>
   <script>
+    // Variable globale pour l'utilisateur connecté
+    let currentUser = null;
+    
     // Vérifier l'accès à cette page
     window.addEventListener('DOMContentLoaded', () => {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      currentUser = JSON.parse(sessionStorage.getItem('user') || '{}');
+      const user = currentUser; // Alias pour compatibilité
       
       // Rediriger si pas admin ou gestionnaire
       if (!user.idRole || (user.idRole !== 1 && user.idRole !== 2)) {
@@ -290,13 +294,19 @@
                 </span>
               </td>
               <td style="padding: 14px; text-align: center;">
-                <button onclick="supprimerUtilisateur(${user.idEmploye}, '${user.prenomEmploye || ''} ${user.nomEmploye || ''}')" 
-                        style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease;"
-                        onmouseover="this.style.background='#ef4444'; this.style.color='white';"
-                        onmouseout="this.style.background='#fef2f2'; this.style.color='#ef4444';"
-                        title="Supprimer cet utilisateur">
-                  <i class="fa-solid fa-trash"></i> Supprimer
-                </button>
+                ${currentUser.idRole === 1 ? `
+                  <button onclick="supprimerUtilisateur(${user.idEmploye}, '${user.prenomEmploye || ''} ${user.nomEmploye || ''}')" 
+                          style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease;"
+                          onmouseover="this.style.background='#ef4444'; this.style.color='white';"
+                          onmouseout="this.style.background='#fef2f2'; this.style.color='#ef4444';"
+                          title="Supprimer cet utilisateur">
+                    <i class="fa-solid fa-trash"></i> Supprimer
+                  </button>
+                ` : `
+                  <span style="color: #9ca3af; font-size: 0.9rem; font-style: italic;">
+                    <i class="fa-solid fa-lock"></i> Réservé aux admins
+                  </span>
+                `}
               </td>
             `;
             

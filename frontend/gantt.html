@@ -18,7 +18,7 @@
       <button onclick="window.location.href='/projects'"><i class="fa-solid fa-briefcase"></i> Projets</button>
       <button class="active" onclick="window.location.href='/gantt'"><i class="fa-solid fa-chart-gantt"></i> Gantt</button>
       <button onclick="window.location.href='/time'"><i class="fa-solid fa-clock"></i> Temps</button>
-      <button id="btnUsers" onclick="window.location.href='/users'" style="display:none;"><i class="fa-solid fa-users"></i> Utilisateurs</button>
+      <button id="btnUsers" onclick="window.location.href='/users'" class="btn-users-hidden"><i class="fa-solid fa-users"></i> Utilisateurs</button>
     </div>
 
     <div class="profile">
@@ -27,54 +27,45 @@
         <span>drtgdt</span><br />
         <small>Employé</small>
       </div>
+      <button id="btnLogout" style="margin-left:16px;background:#e5e7eb;border:none;border-radius:8px;padding:6px 14px;font-weight:600;cursor:pointer;">Déconnexion</button>
     </div>
   </header>
 
   <main>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="gantt-header">
       <div>
         <h2>Diagramme de Gantt</h2>
         <p>Visualisation chronologique des projets et tâches</p>
       </div>
-      <select id="projetFilter" style="padding: 10px 16px; border-radius: 10px; border: 1px solid #e5e7eb; font-weight: 600; cursor: pointer; background: white;">
+  <select id="projetFilter" class="select-projet-filter">
         <option value="">Tous les projets</option>
       </select>
     </div>
 
-    <div class="gantt-wrapper" style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;">
-      <div id="ganttChart" style="min-width: 1200px;">
-        <div class="loading-spinner" style="text-align: center; padding: 60px; color: #9ca3af;">
-          <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 12px;"></i>
+    <div class="gantt-wrapper">
+      <div id="ganttChart" class="gantt-chart">
+        <div class="loading-spinner">
+          <i class="fa-solid fa-spinner fa-spin spinner-icon"></i>
           <p>Chargement du diagramme...</p>
         </div>
       </div>
     </div>
 
-    <div class="status-legend" style="margin-top: 24px; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; padding: 16px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
-        <div style="width: 16px; height: 16px; border-radius: 4px; background: #e5e7eb;"></div> Actif
-      </span>
-      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
-        <div style="width: 16px; height: 16px; border-radius: 4px; background: #fbbf24;"></div> En attente
-      </span>
-      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
-        <div style="width: 16px; height: 16px; border-radius: 4px; background: #3b82f6;"></div> En cours
-      </span>
-      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
-        <div style="width: 16px; height: 16px; border-radius: 4px; background: #f97316;"></div> En révision
-      </span>
-      <span style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #374151;">
-        <div style="width: 16px; height: 16px; border-radius: 4px; background: #22c55e;"></div> Terminé
-      </span>
+    <div class="status-legend">
+      <span class="status-item"><span class="status-dot status-dot-actif"></span> Actif</span>
+      <span class="status-item"><span class="status-dot status-dot-en-attente"></span> En attente</span>
+      <span class="status-item"><span class="status-dot status-dot-en-cours"></span> En cours</span>
+      <span class="status-item"><span class="status-dot status-dot-en-revision"></span> En révision</span>
+      <span class="status-item"><span class="status-dot status-dot-termine"></span> Terminé</span>
     </div>
   </main>
 
   <!-- Scripts modulaires -->
+  <script src="assets/js/main.js"></script>
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/tasks.js"></script>
   <script src="assets/js/projects.js"></script>
-  <script src="assets/js/main.js"></script>
   <script>
     let tousProjets = [];
     let projetSelectionne = null;
@@ -236,32 +227,46 @@
           <tbody>
       `;
 
+      // Fonction récursive pour afficher les tâches et leurs sous-tâches
+      function renderTachesRecursive(taches, niveau, tachesDisponibles) {
+        let html = '';
+        taches.forEach(tache => {
+          const tacheKey = `tache-${tache.idTache}`;
+          const sousTaches = tachesDisponibles.filter(t => t.idTacheParent === tache.idTache);
+          const tacheExpanded = expandedItems[tacheKey] !== false; // Par défaut ouvert
+          const hasSousTaches = sousTaches.length > 0;
+          
+          // Debug détaillé pour TOUTES les tâches
+          console.log(`${'  '.repeat(niveau)}[${tache.idTache}] ${tache.titreTache} (niveau ${niveau})`, {
+            dateDebutTache: tache.dateDebutTache,
+            dateFinTache: tache.dateFinTache,
+            progression: tache.progressionTache,
+            statut: tache.statutTache
+          });
+          
+          html += renderGanttRow(tache.titreTache, tache.dateDebutTache, tache.dateFinTache, dateMin, dateMax, mois, getStatusColor(tache.statutTache), niveau, false, tacheKey, tacheExpanded, tache, hasSousTaches, null);
+          
+          // Récursion : afficher les sous-tâches si la tâche est développée
+          if (tacheExpanded && hasSousTaches) {
+            html += renderTachesRecursive(sousTaches, niveau + 1, tachesDisponibles);
+          }
+        });
+        return html;
+      }
+
       // Pour chaque projet
       projetsAffiches.forEach((projet, idx) => {
         const projetKey = `projet-${projet.idProjet}`;
         const projetExpanded = expandedItems[projetKey] !== false; // Par défaut ouvert
         
-        // Ligne du projet
-        html += renderGanttRow(projet.nomProjet, projet.dateDebut, projet.dateFin, dateMin, dateMax, mois, projet.color || '#3b82f6', 0, true, projetKey, projetExpanded, null, projet.taches.length > 0, projet);
+        // Ligne du projet - Utiliser une couleur cohérente basée sur l'ID
+        const couleurProjet = projet.color || getProjectColor(projet.idProjet);
+        html += renderGanttRow(projet.nomProjet, projet.dateDebut, projet.dateFin, dateMin, dateMax, mois, couleurProjet, 0, true, projetKey, projetExpanded, null, projet.taches.length > 0, projet);
         
         if (projetExpanded) {
-          // Tâches principales (sans parent)
+          // Tâches principales (sans parent) - démarrer la récursion
           const tachesPrincipales = projet.taches.filter(t => !t.idTacheParent);
-          tachesPrincipales.forEach(tache => {
-            const tacheKey = `tache-${tache.idTache}`;
-            const sousTaches = projet.taches.filter(t => t.idTacheParent === tache.idTache);
-            const tacheExpanded = expandedItems[tacheKey] !== false; // Par défaut ouvert
-            const hasSousTaches = sousTaches.length > 0;
-            
-            html += renderGanttRow(tache.titreTache, tache.dateDebutTache, tache.dateFinTache, dateMin, dateMax, mois, getStatusColor(tache.statutTache), 1, false, tacheKey, tacheExpanded, tache, hasSousTaches, null);
-            
-            // Sous-tâches
-            if (tacheExpanded && hasSousTaches) {
-              sousTaches.forEach(st => {
-                html += renderGanttRow(st.titreTache, st.dateDebutTache, st.dateFinTache, dateMin, dateMax, mois, getStatusColor(st.statutTache), 2, false, null, false, st, false, null);
-              });
-            }
-          });
+          html += renderTachesRecursive(tachesPrincipales, 1, projet.taches);
         }
       });
 
@@ -285,49 +290,20 @@
       
       const clickHandler = hasChildren && itemKey ? `onclick="toggleExpand('${itemKey}')" style="cursor: pointer;"` : '';
       
-      // Calculer la progression
+      // Utiliser la progression calculée par le backend (récursive pour les sous-tâches)
       let progression = 0;
       if (isProjet && projet) {
-        // Si le projet est terminé, toujours 100%
-        if (projet.statutProjet === 'Terminé') {
-          progression = 100;
-        } else {
-          // Pour un projet en cours, calculer la progression basée sur les heures ou les tâches
-          const tachesPrincipales = projet.taches.filter(t => !t.idTacheParent);
-          const totalTaches = tachesPrincipales.length;
-          
-          // Calculer d'abord avec les heures
-          const totalHeuresEstimees = tachesPrincipales.reduce((sum, t) => sum + (parseFloat(t.heuresEstimees) || 0), 0);
-          const totalHeuresTravaillees = tachesPrincipales.reduce((sum, t) => sum + (parseFloat(t.heuresTravaillees) || 0), 0);
-          
-          if (totalHeuresEstimees > 0 && totalHeuresTravaillees > 0) {
-            // Progression basée sur les heures (ne peut pas dépasser 100%)
-            progression = Math.min(Math.round((totalHeuresTravaillees / totalHeuresEstimees) * 100), 100);
-          } else {
-            // Sinon, basé sur le nombre de tâches terminées
-            const tachesTerminees = tachesPrincipales.filter(t => t.statutTache === 'Terminée' || t.statutTache === 'Terminé').length;
-            progression = totalTaches > 0 ? Math.round((tachesTerminees / totalTaches) * 100) : 0;
-          }
-        }
+        // Utiliser la progression du projet depuis le backend
+        progression = Math.round(parseFloat(projet.progressionProjet) || 0);
       } else if (tache) {
-        // Pour une tâche, basé sur les heures ou le statut
-        const heuresEstimees = parseFloat(tache.heuresEstimees) || 0;
-        const heuresTravaillees = parseFloat(tache.heuresTravaillees) || 0;
+        // Utiliser la progression de la tâche calculée récursivement par le backend
+        progression = Math.round(parseFloat(tache.progressionTache) || 0);
         
-        if (heuresEstimees > 0 && heuresTravaillees > 0) {
-          // Progression basée sur les heures (ne peut pas dépasser 100%)
-          progression = Math.min(Math.round((heuresTravaillees / heuresEstimees) * 100), 100);
-        } else {
-          // Sinon, basé sur le statut
-          if (tache.statutTache === 'Terminée' || tache.statutTache === 'Terminé') {
-            progression = 100;
-          } else if (tache.statutTache === 'En cours') {
-            progression = 50;
-          } else if (tache.statutTache === 'En révision') {
-            progression = 75;
-          } else if (tache.statutTache === 'En attente' || tache.statutTache === 'À faire') {
-            progression = 10;
-          }
+        // Debug: afficher les dates reçues
+        if (!dateDebut || !dateFin) {
+          console.log(`⚠️ Tâche [${tache.idTache}] "${nom}" sans dates:`, {
+            dateDebut, dateFin, dateDebutTache: tache.dateDebutTache, dateFinTache: tache.dateFinTache
+          });
         }
       }
       
@@ -343,9 +319,34 @@
       if (dateDebut && dateFin) {
         const debut = new Date(dateDebut);
         const fin = new Date(dateFin);
+        
+        // Vérifier que les dates sont valides
+        if (isNaN(debut.getTime()) || isNaN(fin.getTime())) {
+          console.error(`❌ Dates invalides pour "${nom}":`, {dateDebut, dateFin, debut, fin});
+          // Afficher des cellules vides si dates invalides
+          cellules = mois.map((m, i) => `<td style="padding: 0; height: ${isProjet ? '48px' : '42px'}; ${i < mois.length - 1 ? 'border-right: 1px solid #e5e7eb;' : ''} background: ${i % 2 === 0 ? 'white' : '#fafafa'};"></td>`).join('');
+          return `
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td ${clickHandler} style="padding: 14px 16px; font-weight: ${isProjet ? '600' : '500'}; color: ${isProjet ? '#0b0b20' : '#374151'}; font-size: ${isProjet ? '0.95rem' : '0.9rem'}; position: sticky; left: 0; background: white; z-index: 5; border-right: 1px solid #e5e7eb; white-space: nowrap;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-left: ${indent}px;">
+                  ${expandIcon ? `<span style="width: 14px; color: #6b7280; display: flex; align-items: center;">${expandIcon}</span>` : (niveau > 0 ? '<span style="width: 14px;"></span>' : '')}
+                  ${isProjet ? `<div style="width: 10px; height: 10px; border-radius: 50%; background: ${couleur}; flex-shrink: 0;"></div>` : ''}
+                  <span>${nom}</span>
+                </div>
+              </td>
+              ${cellules}
+            </tr>
+          `;
+        }
+        
         const totalJours = (dateMax - dateMin) / (1000 * 60 * 60 * 24);
         const joursDebut = (debut - dateMin) / (1000 * 60 * 60 * 24);
-        const joursFin = (fin - debut) / (1000 * 60 * 60 * 24);
+        let joursFin = (fin - debut) / (1000 * 60 * 60 * 24);
+        
+        // Si la tâche dure moins d'un jour (début = fin), afficher au moins 1 jour
+        if (joursFin < 1) {
+          joursFin = 1;
+        }
         
         const leftPercent = (joursDebut / totalJours) * 100;
         const widthPercent = (joursFin / totalJours) * 100;

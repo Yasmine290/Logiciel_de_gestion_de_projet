@@ -22,14 +22,21 @@ function chargerDetailsProjet() {
     fetch(`${API_BASE}/projets/${idProjet}`)
         .then(res => res.json())
         .then(p => {
-            chargerTaches(idProjet).then(taches => {
-                // Calculer les statistiques du projet
-                const tachesPrincipales = taches.filter(t => !t.idTacheParent);
-                const totalTaches = tachesPrincipales.length;
-                const tachesTerminees = tachesPrincipales.filter(t => t.statutTache === 'Terminée').length;
-                const tachesEnCours = tachesPrincipales.filter(t => (t.statutTache === 'En cours' || t.statutTache === 'En révision')).length;
+            // Charger les tâches ET récupérer le statut mis à jour du projet
+            Promise.all([
+                chargerTaches(idProjet),
+                fetch(`${API_BASE}/projets/${idProjet}`).then(res => res.json())
+            ]).then(([taches, projectUpdated]) => {
+                // Utiliser le projet mis à jour depuis le serveur (avec le bon statutProjet)
+                p = projectUpdated;
                 
-                let progression = calculerProgressionProjet(p, taches);
+                // Calculer les statistiques du projet - COMPTER TOUTES LES TÂCHES (principales + sous-tâches)
+                const totalTaches = taches.length; // Toutes les tâches, pas seulement les principales
+                const tachesTerminees = taches.filter(t => t.statutTache === 'Terminée').length;
+                const tachesEnCours = taches.filter(t => (t.statutTache === 'En cours' || t.statutTache === 'En révision')).length;
+                
+                // Utiliser la progression calculée par le backend (récursive)
+                let progression = parseFloat(projectUpdated.progressionProjet) || 0;
                 
                 // Mettre à jour les données du projet
                 p.total = totalTaches;
@@ -100,7 +107,10 @@ function chargerDetailsProjet() {
                             <div class="project-header-detail" style="position:relative;">
                                 <div class="color-dot" style="background:${p.color || '#2563eb'};"></div>
                                 <div style="flex:1;">
-                                    <h2>${p.nomProjet}</h2>
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                        <h2 style="margin: 0;">${p.nomProjet}</h2>
+                                        <span class="status-badge status-${(p.statutProjet || 'À faire').toLowerCase().replace(/\s+/g, '-').replace('à', 'a')}">${p.statutProjet || 'À faire'}</span>
+                                    </div>
                                     <p style="color:#6b7280; margin-bottom: 16px;">${p.descriptionProjet || 'Aucune description'}</p>
                                     
                                     <div style="display: flex; flex-direction: column; gap: 12px;">

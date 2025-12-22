@@ -46,11 +46,16 @@ async function estAssigneATache(idTache) {
 async function marquerTacheTerminee(idTache) {
     try {
         const userConnecte = JSON.parse(sessionStorage.getItem('user') || '{}');
-        const estAssigne = await estAssigneATache(idTache);
+        const isAdminOrGestionnaire = userConnecte.idRole === 1 || userConnecte.idRole === 2;
+        const isEmploye = userConnecte.idRole === 3;
         
-        if (!estAssigne) {
-            alert('Vous devez être assigné à cette tâche pour la marquer comme terminée.');
-            return;
+        // Vérification des permissions : Admin/Gestionnaire peuvent tout faire, Employé doit être assigné
+        if (isEmploye) {
+            const estAssigne = await estAssigneATache(idTache);
+            if (!estAssigne) {
+                alert('Vous devez être assigné à cette tâche pour la marquer comme terminée.');
+                return;
+            }
         }
 
         // Récupérer les données complètes de la tâche
@@ -106,11 +111,15 @@ async function marquerTacheTerminee(idTache) {
 }
 
 /**
- * Affiche les boutons "Marquer comme terminée" pour les tâches assignées
+ * Affiche les boutons "Marquer comme terminée" pour les tâches
+ * Admin et Gestionnaire : peuvent marquer TOUTES les tâches comme terminées
+ * Employé : peut marquer comme terminée UNIQUEMENT les tâches qui lui sont assignées
  * @param {Array} taches - Liste des tâches
  */
 async function afficherBoutonsMarquerTerminee(taches) {
     const userConnecte = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const isAdminOrGestionnaire = userConnecte.idRole === 1 || userConnecte.idRole === 2; // 1 = Admin, 2 = Gestionnaire
+    const isEmploye = userConnecte.idRole === 3; // 3 = Employé
     
     for (const tache of taches) {
         const container = document.getElementById(`btn-terminer-container-${tache.idTache}`);
@@ -119,21 +128,32 @@ async function afficherBoutonsMarquerTerminee(taches) {
         // Ne pas afficher le bouton si la tâche est déjà terminée
         if (tache.statutTache === 'Terminée') continue;
         
-        try {
-            const estAssigne = await estAssigneATache(tache.idTache);
-            
-            if (estAssigne) {
-                container.innerHTML = `
-                    <button 
-                        onclick="marquerTacheTerminee(${tache.idTache})" 
-                        title="Marquer comme terminée"
-                        style="background:#22c55e;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9em;display:flex;align-items:center;gap:6px;white-space:nowrap;">
-                        <i class="fa-solid fa-check"></i> Terminée
-                    </button>
-                `;
+        let afficherBouton = false;
+        
+        // Admin et Gestionnaire : toujours afficher le bouton
+        if (isAdminOrGestionnaire) {
+            afficherBouton = true;
+        }
+        // Employé : vérifier s'il est assigné
+        else if (isEmploye) {
+            try {
+                const estAssigne = await estAssigneATache(tache.idTache);
+                afficherBouton = estAssigne;
+            } catch (err) {
+                console.error(`Erreur vérification assignation tâche ${tache.idTache}:`, err);
+                afficherBouton = false;
             }
-        } catch (err) {
-            console.error(`Erreur vérification assignation tâche ${tache.idTache}:`, err);
+        }
+        
+        if (afficherBouton) {
+            container.innerHTML = `
+                <button 
+                    onclick="marquerTacheTerminee(${tache.idTache})" 
+                    title="Marquer comme terminée"
+                    style="background:#22c55e;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9em;display:flex;align-items:center;gap:6px;white-space:nowrap;">
+                    <i class="fa-solid fa-check"></i> Terminée
+                </button>
+            `;
         }
     }
 }
@@ -217,6 +237,21 @@ function afficherTaches(taches, parentId = null, niveau = 0) {
  */
 function openTacheModal(parentId = null) {
     tacheParentId = parentId;
+    
+    // Réinitialiser tous les champs du formulaire de création
+    document.getElementById('titreTache').value = '';
+    document.getElementById('descTache').value = '';
+    document.getElementById('statutTache').value = 'À faire';
+    document.getElementById('prioriteTache').value = 'Moyenne';
+    document.getElementById('dateDebutTache').value = '';
+    document.getElementById('dateFinTache').value = '';
+    document.getElementById('heuresTache').value = '';
+    
+    // Décocher toutes les cases des membres
+    const checkboxes = document.querySelectorAll('#assigneTache input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    
+    // Charger les membres disponibles
     chargerMembresEquipe();
     openModal('modalTache');
 }
